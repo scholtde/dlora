@@ -28,7 +28,8 @@ def scan():
 			beaconParts = beacon.split(",")
 			
 			if (debug):
-					print(" BLE Device Found (UUID " + beaconParts[1] + "): " + str(beaconParts))
+				pass
+				#print(" BLE Device Found (UUID " + beaconParts[1] + "): " + str(beaconParts))
 			
 
 #Stop Scanning function
