@@ -1,7 +1,7 @@
 # BLE iBeaconScanner based on https://github.com/adamf/BLE/blob/master/ble-scanner.py
 # JCS 06/07/14
 
-DEBUG = False
+DEBUG = True
 # BLE scanner based on https://github.com/adamf/BLE/blob/master/ble-scanner.py
 # BLE scanner, based on https://code.google.com/p/pybluez/source/browse/trunk/examples/advanced/inquiry-with-rssi.py
 
@@ -133,7 +133,6 @@ def parse_events(sock, loop_count=100):
     myFullList = []
     for i in range(0, loop_count):
         pkt = sock.recv(255)
-        print(pkt)
         ptype, event, plen = struct.unpack("BBB", pkt[:3])
         if event == bluez.EVT_INQUIRY_RESULT_WITH_RSSI:
             i =0
@@ -149,7 +148,6 @@ def parse_events(sock, loop_count=100):
                 # le_handle_connection_complete(pkt)
             elif subevent == EVT_LE_ADVERTISING_REPORT:
                 num_reports = struct.unpack("B", bytes([pkt[0]]))[0]
-                print("1. num_reports: " + str(num_reports))
                 report_pkt_offset = 0
                 for i in range(0, num_reports):
                     if DEBUG:

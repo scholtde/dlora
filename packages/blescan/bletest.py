@@ -28,7 +28,7 @@ def scan():
 			beaconParts = beacon.split(",")
 			
 			if (debug):
-					print(" Tilt Device Found (UUID " + beaconParts[1] + "): " + str(beaconParts))
+					print(" BLE Device Found (UUID " + beaconParts[1] + "): " + str(beaconParts))
 			
 
 #Stop Scanning function
