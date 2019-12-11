@@ -50,19 +50,19 @@ def returnnumberpacket(pkt):
     myInteger = 0
     multiple = 256
     for c in pkt:
-        myInteger +=  struct.unpack("B",c)[0] * multiple
+        myInteger +=  struct.unpack("B", bytes([c]))[0] * multiple
         multiple = 1
     return myInteger 
 
 def returnstringpacket(pkt):
     myString = "";
     for c in pkt:
-        myString +=  "%02x" %struct.unpack("B",c)[0]
+        myString +=  "%02x" %struct.unpack("B", bytes([c]))[0]
     return myString 
 
 def printpacket(pkt):
     for c in pkt:
-        sys.stdout.write("%02x " % struct.unpack("B",c)[0])
+        sys.stdout.write("%02x " % struct.unpack("B", bytes([c]))[0])
 
 def get_packed_bdaddr(bdaddr_string):
     packable_addr = []
