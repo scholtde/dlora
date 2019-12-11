@@ -149,6 +149,7 @@ def parse_events(sock, loop_count=100):
                 # le_handle_connection_complete(pkt)
             elif subevent == EVT_LE_ADVERTISING_REPORT:
                 num_reports = struct.unpack("B", bytes([pkt[0]]))[0]
+                print("1. num_reports: " + str(num_reports))
                 report_pkt_offset = 0
                 for i in range(0, num_reports):
                     if DEBUG:
