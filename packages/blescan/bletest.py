@@ -1,14 +1,6 @@
 import blescan
 import sys
-import datetime
-import time
-import os
-
 import bluetooth._bluetooth as bluez
-import threading
-import thread
-
-
 
 dev_id = 0    
 scanning = True
