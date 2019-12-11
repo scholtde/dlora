@@ -20,8 +20,8 @@ def scan():
 	try:
 		sock = bluez.hci_open_dev(dev_id)
 
-	except Exception, e:
-		print "ERROR: Accessing bluetooth device: " + e.message
+	except Exception as e:
+		print("ERROR: Accessing bluetooth device: " + str(e))
 		sys.exit(1)
 
 	blescan.hci_le_set_scan_parameters(sock)
@@ -36,13 +36,12 @@ def scan():
 			beaconParts = beacon.split(",")
 			
 			if (debug):
-					print " Tilt Device Found (UUID " + beaconParts[1] + "): " + str(beaconParts)
+					print(" Tilt Device Found (UUID " + beaconParts[1] + "): " + str(beaconParts))
 			
 
 #Stop Scanning function
 def stop():
 	scanning = False
-
 
 
 scan()
