@@ -35,7 +35,6 @@ class aiStreamer:
         self.probability = None # Used in default fallback
         self.AI_detection = None
         self.AI_on_motion_detection = False
-        self.json_post = None
         self.cap_id = None
         self.vpu_schedule = None
         self.zone_info_matrix = None
@@ -48,7 +47,7 @@ class aiStreamer:
         self.home_dir = str(Path.home())
 
     def setup(self):
-        print("[", colored("INFO", 'green', attrs=['bold']), "   ] loading model")
+        print("[", colored("INFO", 'green', attrs=['bold']), "   ] loading model..")
         self.net = cv2.dnn.readNetFromModelOptimizer("models/MobileNetSSD_deploy.xml", "models/MobileNetSSD_deploy.bin")
         self.lables_file = "models/labels/MobileNetSSD_labels.txt"
         self.colour_file = "models/labels/MobileNetSSD_colour"
@@ -96,8 +95,7 @@ class aiStreamer:
             lst.append(col)
         self.COLORS = lst
         f.close()
-
-        self.writer_time = time.time()
+        print("[", colored("INFO", 'green', attrs=['bold']), "   ] model: " + model_name + " loaded!")
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] AI for " + self.cam_name + " is ready!")
 
     def update(self):
@@ -142,7 +140,7 @@ class aiStreamer:
         blob = cv2.dnn.blobFromImage(cv2.resize(self.frame, (self.input_w, self.input_h)), self.scale,
                                      (self.input_w, self.input_h), self.mean)
 
-        # Pass the blob through the network and obtain the detections and predictions
+        # Pass the blob through the DNN and gather the detections and predictions
         self.net.setInput(blob)
         detections = self.net.forward()
 
@@ -150,24 +148,26 @@ class aiStreamer:
         detected_objects = []
         defined_objects = []
         self.totals = []
-        # Extract objects from the dictionary
+
+        # Extract objects from the dictionary which the user defined
         for object in self.cam_defined_objects:
             defined_objects.append(object)
+
         # If no objects are defined, then load all the model objects
         if not defined_objects:
             defined_objects = self.model_defined_objects
+
         for i in range(len(defined_objects)):
             self.totals.append(0)
-        self.bot.defined_objects[self.cap_id] = defined_objects
 
         self.is_detect = False
-        # Loop over the detections
+
+        # Loop over the detections after the feed forward inference
         for i in np.arange(0, detections.shape[2]):
             # extract the confidence (i.e., probability) associated with
             # the prediction
             confidence = detections[0, 0, i, 2]
             point = None
-
 
             # extract the index of the class label from the
             # `detections`, then compute the (x, y)-coordinates of
@@ -205,108 +205,74 @@ class aiStreamer:
                     # Test point for Zone detection (object in zone or not?)
                     tp_x = int(startX + ((endX - startX) / 2))
                     tp_y = int(endY - ((endY - startY) / 2))
-                    if self.CLASSES[idx] == "person":
-                        tp_y = int(endY - ((endY - startY) / 5)) # move offset 1/5th from bounding box bottom
-                    if self.CLASSES[idx] == "car":
-                        tp_y = int(endY - ((endY - startY) / 3)) # move offset 1/3th from bounding box bottom
+                    # if self.CLASSES[idx] == "person":
+                    #     tp_y = int(endY - ((endY - startY) / 5)) # move offset 1/5th from bounding box bottom
+                    # if self.CLASSES[idx] == "car":
+                    #     tp_y = int(endY - ((endY - startY) / 3)) # move offset 1/3th from bounding box bottom
 
                     self.is_detect = True
 
                     # Draw Box
                     self.frame = cv2.rectangle(self.frame, (startX, startY), (endX, endY), self.COLORS[idx], 2)
-                    # Check if user busy annotating or not and if it is ready for next frame and for which cam
-                    if self.bot.annotation_mode and \
-                       self.bot.annotation_ready is False and \
-                       self.bot.annotation_ready_next and \
-                       self.bot.annotation_selected_cam == self.cap_id:
-                        cv2.putText(self.frame, str(obj_count), (tp_x, tp_y), cv2.FONT_HERSHEY_SIMPLEX, 2,
-                                    self.COLORS[idx], 2)
-                        self.bot.annotation_boxes.append([obj_count, startX, startY, endX, endY])
-                    else:
-                        cv2.putText(self.frame, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.COLORS[idx], 2)
-                        cv2.line(self.frame, (tp_x-15, tp_y), (tp_x+15, tp_y), self.COLORS[idx], 3)
-                        cv2.line(self.frame, (tp_x, tp_y-15), (tp_x, tp_y+15), self.COLORS[idx], 3)
-                        cv2.circle(self.frame, (tp_x, tp_y), 10, (255, 255, 255), 2)
+                    cv2.putText(self.frame, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.COLORS[idx], 2)
+                    cv2.line(self.frame, (tp_x-15, tp_y), (tp_x+15, tp_y), self.COLORS[idx], 3)
+                    cv2.line(self.frame, (tp_x, tp_y-15), (tp_x, tp_y+15), self.COLORS[idx], 3)
+                    cv2.circle(self.frame, (tp_x, tp_y), 10, (255, 255, 255), 2)
 
-                    # check if object is in a zone
-                    if self.zones_flag is True:
-                        inzone = False
-                        for i in range(len(self.zone_info_matrix[3])):
-                            zone_id = i + 1
-                            zone_test = cv2.pointPolygonTest(self.zone_info_matrix[3][i], (tp_x, tp_y), False)
+                    # self.totals[defined_objects.index(found_object)] += 1
+                    # detected_objects.append(
+                    #     dict(zone_id=str(zone_id),
+                    #          classification=found_object,
+                    #          probability=str(round(confidence * 100, 2))))
+                    #
+                    # detect_array.append(
+                    #     dict(capture_id=str(self.cap_id),
+                    #          zone_id=str(zone_id),
+                    #          classification=found_object,
+                    #          probability=str(round(confidence * 100, 2)),
+                    #          bb_coordinates=[str(startX), str(startY), str(endX), str(endY)]))
 
-                            if zone_test != -1:
-                                inzone = True
-                                # Prepare array of all the objects detected
-                                self.totals[defined_objects.index(found_object)] += 1
-                                detected_objects.append(
-                                    dict(zone_id=str(zone_id),
-                                         classification=found_object,
-                                         probability=str(round(confidence * 100, 2))))
-
-                                detect_array.append(
-                                    dict(capture_id=str(self.cap_id),
-                                         zone_id=str(zone_id),
-                                         classification=found_object,
-                                         probability=str(round(confidence * 100, 2)),
-                                         bb_coordinates=[str(startX), str(startY), str(endX), str(endY)]))
-                        # there were objects, but they were not in a zone
-                        self.is_detect = inzone
-                    else:
-                        self.totals[defined_objects.index(found_object)] += 1
-                        detected_objects.append(
-                            dict(zone_id=str(zone_id),
-                                 classification=found_object,
-                                 probability=str(round(confidence * 100, 2))))
-
-                        detect_array.append(
-                            dict(capture_id=str(self.cap_id),
-                                 zone_id=str(zone_id),
-                                 classification=found_object,
-                                 probability=str(round(confidence * 100, 2)),
-                                 bb_coordinates=[str(startX), str(startY), str(endX), str(endY)]))
-
-        # Accumulate the detections
-        self.accumulate(detect_array, self.is_detect)
-        # Were there any ai detections
-        if self.is_detect:
-            # Is the positive detection a consecutive frame from previous detections
-            if self.frame_count - 1 == self.frame_marker:
-                # Increase consecutive frame positives
-                self.frame_consecutive_detections += 1
-            else:
-                # Set marker with detection positive frame count for a next time test
-                self.frame_marker = self.frame_count
-
-            # If there are more consecutive positive frames than defined, set the ai detections as "True Positives"
-            if self.frame_consecutive_detections > 2:
-                # Reset consecutive positive detections
-                self.frame_consecutive_detections = 0
-                # Let the bot know there are detections
-                self.bot.ai_detections_list[self.cap_id] = self.cam_name + \
-                                                           "\nObjects: " + str(detected_objects) + \
-                                                           "\n\nTotal Objects: " + str(sum(self.totals)) + \
-                                                           "\nOccurred at: " + str(time.ctime())
-                self.bot.ai_detections_list_notifications[self.cap_id] = self.totals.copy()
-                self.is_true_detect = True
-
-                #if time.time() - self.writer_time > 1:
-                #    self.writer_time = time.time()
-                if self.bot.annotation_mode and \
-                        self.bot.annotation_ready is False and \
-                        self.bot.annotation_ready_next and \
-                        self.bot.annotation_selected_cam == self.cap_id:
-                    self.bot.annotation_frame = self.frame
-                    self.bot.annotation_frame_shape = (w, h)
-                    self.bot.annotation_frame_save = clean_frame
-                    self.bot.annotation_ready = True
-
-        else:
-            self.bot.ai_detections_list_notifications[self.cap_id] = None
-
-        # Reset totals
-        for i in range(len(self.totals)):
-            self.totals[i] = 0
+        # # Accumulate the detections
+        # self.accumulate(detect_array, self.is_detect)
+        # # Were there any ai detections
+        # if self.is_detect:
+        #     # Is the positive detection a consecutive frame from previous detections
+        #     if self.frame_count - 1 == self.frame_marker:
+        #         # Increase consecutive frame positives
+        #         self.frame_consecutive_detections += 1
+        #     else:
+        #         # Set marker with detection positive frame count for a next time test
+        #         self.frame_marker = self.frame_count
+        #
+        #     # If there are more consecutive positive frames than defined, set the ai detections as "True Positives"
+        #     if self.frame_consecutive_detections > 2:
+        #         # Reset consecutive positive detections
+        #         self.frame_consecutive_detections = 0
+        #         # Let the bot know there are detections
+        #         self.bot.ai_detections_list[self.cap_id] = self.cam_name + \
+        #                                                    "\nObjects: " + str(detected_objects) + \
+        #                                                    "\n\nTotal Objects: " + str(sum(self.totals)) + \
+        #                                                    "\nOccurred at: " + str(time.ctime())
+        #         self.bot.ai_detections_list_notifications[self.cap_id] = self.totals.copy()
+        #         self.is_true_detect = True
+        #
+        #         #if time.time() - self.writer_time > 1:
+        #         #    self.writer_time = time.time()
+        #         if self.bot.annotation_mode and \
+        #                 self.bot.annotation_ready is False and \
+        #                 self.bot.annotation_ready_next and \
+        #                 self.bot.annotation_selected_cam == self.cap_id:
+        #             self.bot.annotation_frame = self.frame
+        #             self.bot.annotation_frame_shape = (w, h)
+        #             self.bot.annotation_frame_save = clean_frame
+        #             self.bot.annotation_ready = True
+        #
+        # else:
+        #     self.bot.ai_detections_list_notifications[self.cap_id] = None
+        #
+        # # Reset totals
+        # for i in range(len(self.totals)):
+        #     self.totals[i] = 0
 
         return self.frame
 

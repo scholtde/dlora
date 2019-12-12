@@ -24,21 +24,8 @@ from packages.ai_stream import ai_stream as ai
 
 class Dlora:
     def __init__(self, **kwargs):
-        self.total_camera = 1
-        self.streams = [0]
-        self.cam_name = ["logitec c920 webcam"]
-        self.cam_desc = []
-        self.probability = []
-        self.capture_list = []
-        self.camera_list = []
-
-
-    def configure(self):
-
-
-    def run(self):
         # grab a list of all NCS devices plugged in to USB
-        log =  "finding VPU devices..."
+        log = "finding VPU devices..."
         logging.info(log)
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
         # NCSDKv2 - Old API used to count devices, functionality not yet available for OpenVINO toolkit IE backend
@@ -56,46 +43,52 @@ class Dlora:
         vpu_device_count = len(VPU_devices)
 
         # Start threaded camera stream capture as well as initialise streamer for object detection
-        for cam in range(self.total_camera):
-            log = "starting video stream - " + self.cam_name[cam] + " : " + self.streams[cam]
-            logging.info(log)
-            print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
+        log = "starting video stream - " + self.cam_name + " : " + str(self.stream)
+        logging.info(log)
+        print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
 
-            self.captures = VideoStream(self.streams[cam]).start()
-            self.capture_list.append(self.captures)
-            # Create ai object
-            self.camera = ai.aiStreamer()
-            # Initialize ai object members
-            self.camera.capture = self.captures
-            self.camera.cam_name = self.cam_name[cam]
-            self.camera.cam_defined_objects = self.cam_defined_objects[cam]
-            self.camera.AI_detection = self.object_detect_flags[cam]
-            self.camera.probability = (int(self.probability[cam]))
-            self.camera.cap_id = cam
-            self.camera.vpu_schedule = self.vpu_s
-            self.camera.zone_info_matrix = self.zones_info_matrix[cam]
-            self.camera.zones_flag = self.zone_detect_flags[cam]
+        # Camera and some model settings
+        self.stream = 0
+        self.cam_name = "logitec c920 webcam"
+        self.cam_desc = "just a normal webcam"
+        self.cam_defined_objects = {"person": 30, "car": 50}
+        self.object_detect_flag = True
+        self.probability = 50  # if objects are not explicitly defined, this default value is used
 
-            # Setup the ai object
-            self.camera.setup()
+        # Setup a blank frame
+        self.frame = np.zeros(shape=[360, 640, 3], dtype=np.uint8)
 
-            self.camera_list.append(self.camera)
+        # Start capturing frames from the camera stream
+        self.capture = VideoStream(self.stream).start()
 
-        # Display a wall of streams. This could be enhanced to grid form using placeholder images
-        log = "starting video screen"
+        # Create a AI streamer to pass frames to the object detector
+        self.camera_ai = ai.aiStreamer()
+
+        # Initialize ai object members
+        self.camera_ai.capture = self.capture
+        self.camera_ai.cam_name = self.cam_name
+        self.camera_ai.cam_defined_objects = self.cam_defined_objects
+        self.camera_ai.AI_detection = self.object_detect_flag
+        self.camera_ai.probability = self.probability
+
+        # Setup the ai object
+        self.camera_ai.setup()
+
+    def run(self):
+        # Display the stream
+        log = "starting output video screen"
         logging.info(log)
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
 
         while True:
             try:
-                # Process frames
-                for i in range(len(self.camera_list)):
-                    frame = self.camera_list[i].update()
+                # Process new frames
+                self.frame = self.camera_ai.update()
 
                 # Display opencv window of the captured frame
                 cv2.namedWindow("CAM Capture", cv2.WINDOW_NORMAL)
                 cv2.resizeWindow("CAM Capture", 640, 480)
-                cv2.imshow("CAM Capture", frame)
+                cv2.imshow("CAM Capture", self.frame)
 
                 key = cv2.waitKey(1) & 0xFF
 
@@ -118,11 +111,10 @@ class Dlora:
 
     def end(self):
         # Stop the stream list
-        log = "stopping video streams"
+        log = "stopping video stream"
         logging.info(log)
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
-        for i in range(len(self.capture_list)):
-            self.capture_list[i].stop()
+        self.capture.stop()
 
         cv2.destroyAllWindows()
         time.sleep(2)
@@ -155,7 +147,6 @@ if __name__ == '__main__':
         logging.info(log)
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
         app = Dlora()
-        app.configure()
         app.run()
         break
 
