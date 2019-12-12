@@ -7,6 +7,7 @@
 import logging
 import cv2
 import numpy as np
+from threading import Thread
 from termcolor import colored
 
 
@@ -20,6 +21,12 @@ class aiStreamer:
         self.AI_detection = None
         self.cam_defined_objects = None
         self.totals = []
+
+        # BLE
+        self.ble_scanner = None
+        self.ble_sock = None
+        self.ble_stop = False
+        self.known_UDID = None
 
     def setup(self):
         log = "loading model.."
@@ -84,6 +91,22 @@ class aiStreamer:
         log = "AI for " + self.cam_name + " is ready!"
         logging.info(log)
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
+
+    def start_ble_loop(self):
+        t = Thread(target=self.ble_loop(), name="ble_loop")
+        t.daemon = True
+        t.start()
+
+    def ble_loop(self):
+        while True:
+            if self.ble_stop:
+                break
+            returnedDict = self.ble_scanner.parse_events(self.ble_sock, 1)
+            #print(returnedDict)
+            if returnedDict["UDID"] in self.known_UDID:
+                print("known person")
+
+        return
 
     def update(self):
         # Read frame from the stream

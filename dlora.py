@@ -26,9 +26,6 @@ import bluetooth._bluetooth as bluez
 
 class Dlora:
     def __init__(self, **kwargs):
-        # Known UDID list
-        self.known_UDID = ["0212233445566778899aabbccddeeff1"]
-
         # Camera and some model settings..
         # The below are intended to be defined externally by the user
         self.stream = "rtsp://192.168.1.101:554/av0_1"
@@ -76,9 +73,17 @@ class Dlora:
         self.camera_ai.cam_defined_objects = self.cam_defined_objects
         self.camera_ai.AI_detection = self.object_detect_flag
         self.camera_ai.probability = self.probability
-
+        # Setup ble services
+        ble_scanner, ble_sock = self.ble_services()
+        self.camera_ai.ble_scanner = ble_scanner
+        self.camera_ai.ble_sock = ble_sock
         # Setup the ai object
         self.camera_ai.setup()
+        if ble_scanner is not None:
+            self.camera_ai.start_ble_loop()
+            # Known UDID list
+            self.known_UDID = ["0212233445566778899aabbccddeeff1"]
+            self.camera_ai.known_UDID = self.known_UDID
 
     def ble_services(self):
         # BLE scanner
@@ -107,9 +112,6 @@ class Dlora:
         return blescanner, sock
 
     def run(self):
-        # Setup ble services
-        blescanner, sock = self.ble_services()
-
         # Display the stream
         log = "starting output video screen"
         logging.info(log)
@@ -119,12 +121,6 @@ class Dlora:
             try:
                 # Process new frames
                 self.frame = self.camera_ai.update()
-
-                # if blescanner is not None:
-                #     returnedDict = blescanner.parse_events(sock, 1)
-                #     #print(returnedDict)
-                #     if returnedDict["UDID"] in self.known_UDID:
-                #         print("known person")
 
                 # Display opencv window of the captured frame
                 cv2.namedWindow("CAM Capture", cv2.WINDOW_NORMAL)
@@ -156,6 +152,7 @@ class Dlora:
         logging.info(log)
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
         self.capture.stop()
+        self.camera_ai.ble_stop = True
 
         cv2.destroyAllWindows()
         time.sleep(2)
