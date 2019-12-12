@@ -49,17 +49,15 @@ class aiStreamer:
 
     def setup(self):
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] loading model")
-        model_name = ""
-        for retreive in self.db_sqlite.execute('select * from ai_models where model_id = ' + self.ai_model):
-            self.net = cv2.dnn.readNetFromModelOptimizer(retreive[5], retreive[4])
-            self.lables_file = retreive[3]
-            self.colour_file = retreive[8]
-            self.input_w = retreive[9]
-            self.input_h = retreive[10]
-            self.scale = retreive[11]
-            self.mean = ast.literal_eval(retreive[12])
-            self.swap_rb = retreive[13]
-            model_name = retreive[1]
+        self.net = cv2.dnn.readNetFromModelOptimizer("models/MobileNetSSD_deploy.xml", "models/MobileNetSSD_deploy.bin")
+        self.lables_file = "models/labels/MobileNetSSD_labels.txt"
+        self.colour_file = "models/labels/MobileNetSSD_colour"
+        self.input_w = 300
+        self.input_h = 300
+        self.scale = 0.007843137
+        self.mean = ast.literal_eval("(127.5,127.5,127.5)")
+        self.swap_rb = 1
+        model_name = "MobileNetSSD"
 
         # Notification Engine totals
         self.totals = []
