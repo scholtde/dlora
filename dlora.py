@@ -24,6 +24,15 @@ from packages.ai_stream import ai_stream as ai
 
 class Dlora:
     def __init__(self, **kwargs):
+        # Camera and some model settings
+        # The below are intended to be defined externally by the user
+        self.stream = 0
+        self.cam_name = "logitec c920 webcam"
+        self.cam_desc = "just a normal webcam"
+        self.cam_defined_objects = {"person": 30, "car": 50}
+        self.object_detect_flag = True
+        self.probability = 50  # if objects are not explicitly defined, this default value is used
+
         # grab a list of all NCS devices plugged in to USB
         log = "finding VPU devices..."
         logging.info(log)
@@ -46,14 +55,6 @@ class Dlora:
         log = "starting video stream - " + self.cam_name + " : " + str(self.stream)
         logging.info(log)
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
-
-        # Camera and some model settings
-        self.stream = 0
-        self.cam_name = "logitec c920 webcam"
-        self.cam_desc = "just a normal webcam"
-        self.cam_defined_objects = {"person": 30, "car": 50}
-        self.object_detect_flag = True
-        self.probability = 50  # if objects are not explicitly defined, this default value is used
 
         # Setup a blank frame
         self.frame = np.zeros(shape=[360, 640, 3], dtype=np.uint8)
