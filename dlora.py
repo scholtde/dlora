@@ -26,7 +26,7 @@ class Dlora:
     def __init__(self, **kwargs):
         # Camera and some model settings
         # The below are intended to be defined externally by the user
-        self.stream = 0
+        self.stream = "rtsp://192.168.1.101:554/av0_1"
         self.cam_name = "logitec c920 webcam"
         self.cam_desc = "just a normal webcam"
         self.cam_defined_objects = {"person": 30, "car": 50}
