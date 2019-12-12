@@ -123,7 +123,7 @@ class Dlora:
                 if blescanner is not None:
                     returnedDict = blescanner.parse_events(sock, 1)
                     #print(returnedDict)
-                    if returnedDict.UDID in self.known_UDID:
+                    if returnedDict["UDID"] in self.known_UDID:
                         print("known person")
 
                 # Display opencv window of the captured frame
