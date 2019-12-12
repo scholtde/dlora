@@ -26,6 +26,9 @@ import bluetooth._bluetooth as bluez
 
 class Dlora:
     def __init__(self, **kwargs):
+        # Known UDID list
+        self.known_UDID = ["0212233445566778899aabbccddeeff1"]
+
         # Camera and some model settings..
         # The below are intended to be defined externally by the user
         self.stream = "rtsp://192.168.1.101:554/av0_1"
@@ -113,13 +116,15 @@ class Dlora:
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
 
         while True:
-            if blescanner is not None:
-                returnedDict = blescanner.parse_events(sock, 1)
-                print(returnedDict)
-
             try:
                 # Process new frames
                 self.frame = self.camera_ai.update()
+
+                if blescanner is not None:
+                    returnedDict = blescanner.parse_events(sock, 1)
+                    #print(returnedDict)
+                    if returnedDict.UDID in self.known_UDID:
+                        print("known person")
 
                 # Display opencv window of the captured frame
                 cv2.namedWindow("CAM Capture", cv2.WINDOW_NORMAL)
