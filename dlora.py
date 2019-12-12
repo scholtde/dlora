@@ -26,21 +26,6 @@ import bluetooth._bluetooth as bluez
 
 class Dlora:
     def __init__(self, **kwargs):
-        # BLE scanner
-        device_err = False
-        device_id = 0
-        try:
-            sock = bluez.hci_open_dev(device_id)
-            log = "bluetooth device opened"
-            logging.info(log)
-            print("[", colored("ERROR", 'red', attrs=['bold']), "  ] " + log)
-
-        except Exception as e:
-            log = "accessing bluetooth device: " + str(e)
-            logging.info(log)
-            print("[", colored("ERROR", 'red', attrs=['bold']), "  ] " + log)
-            device_err = True
-
         # Camera and some model settings..
         # The below are intended to be defined externally by the user
         self.stream = "rtsp://192.168.1.101:554/av0_1"
@@ -92,13 +77,46 @@ class Dlora:
         # Setup the ai object
         self.camera_ai.setup()
 
+    def ble_services(self):
+        # BLE scanner
+        device_err = False
+        device_id = 0
+        try:
+            sock = bluez.hci_open_dev(device_id)
+            log = "bluetooth device opened"
+            logging.info(log)
+            print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
+
+        except Exception as e:
+            log = "accessing bluetooth device: " + str(e)
+            logging.info(log)
+            print("[", colored("ERROR", 'red', attrs=['bold']), "  ] " + log)
+            device_err = True
+            sock = None
+
+        if device_err:
+            blescanner = None
+        else:
+            blescanner = blescan.bleScan()
+            blescanner.hci_le_set_scan_parameters(sock)
+            blescanner.hci_enable_le_scan(sock)
+
+        return blescanner, sock
+
     def run(self):
+        # Setup ble services
+        blescanner, sock = self.ble_services()
+
         # Display the stream
         log = "starting output video screen"
         logging.info(log)
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
 
         while True:
+            if blescanner is not None:
+                returnedDict = blescanner.parse_events(sock, 1)
+                print(returnedDict)
+
             try:
                 # Process new frames
                 self.frame = self.camera_ai.update()
