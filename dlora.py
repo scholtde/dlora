@@ -120,11 +120,11 @@ class Dlora:
                 # Process new frames
                 self.frame = self.camera_ai.update()
 
-                if blescanner is not None:
-                    returnedDict = blescanner.parse_events(sock, 1)
-                    #print(returnedDict)
-                    if returnedDict["UDID"] in self.known_UDID:
-                        print("known person")
+                # if blescanner is not None:
+                #     returnedDict = blescanner.parse_events(sock, 1)
+                #     #print(returnedDict)
+                #     if returnedDict["UDID"] in self.known_UDID:
+                #         print("known person")
 
                 # Display opencv window of the captured frame
                 cv2.namedWindow("CAM Capture", cv2.WINDOW_NORMAL)
