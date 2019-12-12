@@ -16,7 +16,7 @@ import ast
 from termcolor import colored
 from threading import Thread
 from mvnc import mvncapi as mvnc
-from armv7l.openvino.inference_engine import IENetwork, IEPlugin
+from openvino.inference_engine import IENetwork, IEPlugin
 # Custom packages
 from packages.imutils.video import VideoStream
 from packages.ai_stream import ai_stream as ai
