@@ -95,9 +95,9 @@ class aiStreamer:
         return
 
     def start_ble_loop(self):
-        t = Thread(target=self.ble_loop(), name="ble_loop")
-        t.daemon = True
-        t.start()
+        # t = Thread(target=self.ble_loop(), name="ble_loop")
+        # t.daemon = True
+        # t.start()
 
         return
 
