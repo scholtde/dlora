@@ -92,10 +92,14 @@ class aiStreamer:
         logging.info(log)
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
 
+        return
+
     def start_ble_loop(self):
         t = Thread(target=self.ble_loop(), name="ble_loop")
         t.daemon = True
         t.start()
+
+        return
 
     def ble_loop(self):
         while True:
