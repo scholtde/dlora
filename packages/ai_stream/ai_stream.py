@@ -7,54 +7,31 @@
 import logging
 import cv2
 import numpy as np
-import ast
-import time
-import http.client as httplib
 from termcolor import colored
-from pathlib import Path
-# Custom packages
-import packages.imutils as iu
 
 
 class aiStreamer:
     def __init__(self):
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] setting up AI VPU target devices")
-        self.frame_count = 0
-        self.frame_marker = 0
-        self.frame_consecutive_detections = 0
         self.is_detect = False
-        self.is_true_detect = False
         self.capture = None
-        self.firstFrame = None
-        self.last_time_motion = time.time()
-        self.db_sqlite = None
         self.cam_name = None
-        self.motion_detection = None
-        self.ai_model = None
-        self.vpu = None
-        self.probability = None # Used in default fallback
+        self.probability = None     # Used in default fallback
         self.AI_detection = None
-        self.AI_on_motion_detection = False
-        self.cap_id = None
-        self.vpu_schedule = None
-        self.zone_info_matrix = None
-        self.zones_flag = None
-        self.last_time = time.time()
-        self.bot = None
-        self.tamper = False
-        self.tamper_count = 0
         self.cam_defined_objects = None
-        self.home_dir = str(Path.home())
+        self.totals = []
 
     def setup(self):
-        print("[", colored("INFO", 'green', attrs=['bold']), "   ] loading model..")
+        log = "loading model.."
+        logging.info(log)
+        print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
         self.net = cv2.dnn.readNetFromModelOptimizer("models/MobileNetSSD_deploy.xml", "models/MobileNetSSD_deploy.bin")
         self.lables_file = "models/labels/MobileNetSSD_labels.txt"
         self.colour_file = "models/labels/MobileNetSSD_colour"
         self.input_w = 300
         self.input_h = 300
         self.scale = 0.007843137
-        self.mean = ast.literal_eval("(127.5,127.5,127.5)")
+        self.mean = (127.5, 127.5, 127.5)
         self.swap_rb = 1
         model_name = "MobileNetSSD"
 
@@ -62,12 +39,16 @@ class aiStreamer:
         self.totals = []
 
         # Set the backend of the AI
-        print("[", colored("INFO", 'green', attrs=['bold']), "   ] setting up AI backends")
+        log = "setting up AI backends"
+        logging.info(log)
+        print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
         self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_INFERENCE_ENGINE)
         self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_MYRIAD)
 
         # Setup CLASSES list
-        print("[", colored("INFO", 'green', attrs=['bold']), "   ] loading CLASS labels")
+        log = "loading CLASS labels"
+        logging.info(log)
+        print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
         with open(self.lables_file) as f:
             lines = f.read().splitlines()
         self.CLASSES = lines
@@ -93,10 +74,16 @@ class aiStreamer:
             r = int(line[0])
             col.append(r)
             lst.append(col)
+
         self.COLORS = lst
         f.close()
-        print("[", colored("INFO", 'green', attrs=['bold']), "   ] model: " + model_name + " loaded!")
-        print("[", colored("INFO", 'green', attrs=['bold']), "   ] AI for " + self.cam_name + " is ready!")
+
+        log = "model: " + model_name + " loaded!"
+        logging.info(log)
+        print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
+        log = "AI for " + self.cam_name + " is ready!"
+        logging.info(log)
+        print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
 
     def update(self):
         # Read frame from the stream
@@ -147,7 +134,6 @@ class aiStreamer:
         detect_array = []
         detected_objects = []
         defined_objects = []
-        self.totals = []
 
         # Extract objects from the dictionary which the user defined
         for object in self.cam_defined_objects:
