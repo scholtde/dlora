@@ -4,9 +4,7 @@ import bluetooth._bluetooth as bluez
 
 dev_id = 0    
 scanning = True
-debug = True
 
-	
 #Scanner function
 def scan():
 	try:

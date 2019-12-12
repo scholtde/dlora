@@ -20,11 +20,28 @@ from openvino.inference_engine import IENetwork, IEPlugin
 # Custom packages
 from packages.imutils.video import VideoStream
 from packages.ai_stream import ai_stream as ai
-
+# Bluetooth
+from packages.blescan import blescan
+import bluetooth._bluetooth as bluez
 
 class Dlora:
     def __init__(self, **kwargs):
-        # Camera and some model settings
+        # BLE scanner
+        device_err = False
+        device_id = 0
+        try:
+            sock = bluez.hci_open_dev(device_id)
+            log = "bluetooth device opened"
+            logging.info(log)
+            print("[", colored("ERROR", 'red', attrs=['bold']), "  ] " + log)
+
+        except Exception as e:
+            log = "accessing bluetooth device: " + str(e)
+            logging.info(log)
+            print("[", colored("ERROR", 'red', attrs=['bold']), "  ] " + log)
+            device_err = True
+
+        # Camera and some model settings..
         # The below are intended to be defined externally by the user
         self.stream = "rtsp://192.168.1.101:554/av0_1"
         self.cam_name = "logitec c920 webcam"
