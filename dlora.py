@@ -152,7 +152,7 @@ class Dlora:
         logging.info(log)
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
         self.capture.stop()
-        self.camera_ai.ble_stop = True
+        self.camera_ai.stop_ble_loop()
 
         cv2.destroyAllWindows()
         time.sleep(2)
