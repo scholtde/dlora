@@ -23,15 +23,8 @@ def scan():
 	#Keep scanning until the manager is told to stop.
 	while scanning:
 		
-		returnedList = blescanner.parse_events(sock, 10)
-		
-		for beacon in returnedList:
-			beaconParts = beacon.split(",")
-			
-			if (debug):
-				pass
-				#print(" BLE Device Found (UUID " + beaconParts[1] + "): " + str(beaconParts))
-			
+		returnedDict = blescanner.parse_events(sock, 1)
+		print(returnedDict)
 
 #Stop Scanning function
 def stop():

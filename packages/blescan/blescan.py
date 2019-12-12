@@ -47,6 +47,10 @@ class bleScan:
         self.ADV_NONCONN_IND = 0x03
         self.ADV_SCAN_RSP = 0x04
 
+        # Discovered devices dictionary,
+        # this will be updated with scanned devices once it is started
+        self.discovered_devices = None
+
     def returnnumberpacket(self, pkt):
         myInteger = 0
         multiple = 256
@@ -83,23 +87,23 @@ class bleScan:
         self.hci_toggle_le_scan(sock, 0x00)
 
     def hci_toggle_le_scan(self, sock, enable):
-    # hci_le_set_scan_enable(dd, 0x01, filter_dup, 1000);
-    # memset(&scan_cp, 0, sizeof(scan_cp));
-     #uint8_t         enable;
-     #       uint8_t         filter_dup;
-    #        scan_cp.enable = enable;
-    #        scan_cp.filter_dup = filter_dup;
-    #
-    #        memset(&rq, 0, sizeof(rq));
-    #        rq.ogf = OGF_LE_CTL;
-    #        rq.ocf = OCF_LE_SET_SCAN_ENABLE;
-    #        rq.cparam = &scan_cp;
-    #        rq.clen = LE_SET_SCAN_ENABLE_CP_SIZE;
-    #        rq.rparam = &status;
-    #        rq.rlen = 1;
+        # hci_le_set_scan_enable(dd, 0x01, filter_dup, 1000);
+        # memset(&scan_cp, 0, sizeof(scan_cp));
+         #uint8_t         enable;
+         #       uint8_t         filter_dup;
+        #        scan_cp.enable = enable;
+        #        scan_cp.filter_dup = filter_dup;
+        #
+        #        memset(&rq, 0, sizeof(rq));
+        #        rq.ogf = OGF_LE_CTL;
+        #        rq.ocf = OCF_LE_SET_SCAN_ENABLE;
+        #        rq.cparam = &scan_cp;
+        #        rq.clen = LE_SET_SCAN_ENABLE_CP_SIZE;
+        #        rq.rparam = &status;
+        #        rq.rlen = 1;
 
-    #        if (hci_send_req(dd, &rq, to) < 0)
-    #                return -1;
+        #        if (hci_send_req(dd, &rq, to) < 0)
+        #                return -1;
         cmd_pkt = struct.pack("<BB", enable, 0x00)
         bluez.hci_send_cmd(sock, self.OGF_LE_CTL, self.OCF_LE_SET_SCAN_ENABLE, cmd_pkt)
 
@@ -156,32 +160,18 @@ class bleScan:
                             print("\tRSSI:", rssi)
 
                         # Create a dictionary of discovered devices
-                        discovered_devices = \
+                        self.discovered_devices = \
                             dict(MAC_Address=self.packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9]),
                                  UDID=self.returnstringpacket(pkt[report_pkt_offset - 22: report_pkt_offset - 6]),
                                  MAJOR=self.returnnumberpacket(pkt[report_pkt_offset - 6: report_pkt_offset - 4]),
                                  MINOR=self.returnnumberpacket(pkt[report_pkt_offset - 4: report_pkt_offset - 2]),
                                  TX_Power=struct.unpack("b", bytes([pkt[report_pkt_offset - 2]])),
                                  RSSI=struct.unpack("b", bytes([pkt[report_pkt_offset - 1]])))
-                        print(discovered_devices)
+                        #print(self.discovered_devices)
 
-                        # build the return string
-                        Adstring = self.packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
-                        Adstring += ","
-                        Adstring += self.returnstringpacket(pkt[report_pkt_offset - 22: report_pkt_offset - 6])
-                        Adstring += ","
-                        Adstring += "%i" % self.returnnumberpacket(pkt[report_pkt_offset - 6: report_pkt_offset - 4])
-                        Adstring += ","
-                        Adstring += "%i" % self.returnnumberpacket(pkt[report_pkt_offset - 4: report_pkt_offset - 2])
-                        Adstring += ","
-                        Adstring += "%i" % struct.unpack("b", bytes([pkt[report_pkt_offset - 2]]))
-                        Adstring += ","
-                        Adstring += "%i" % struct.unpack("b", bytes([pkt[report_pkt_offset - 1]]))
-
-                        #print "\tAdstring=", Adstring
-                        myFullList.append(Adstring)
                     done = True
+
         sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter )
-        return myFullList
+        return self.discovered_devices
 
 
