@@ -16,13 +16,14 @@ def scan():
 		print("ERROR: Accessing bluetooth device: " + str(e))
 		sys.exit(1)
 
-	blescan.hci_le_set_scan_parameters(sock)
-	blescan.hci_enable_le_scan(sock)
+	blescanner = blescan.bleScan()
+	blescanner.hci_le_set_scan_parameters(sock)
+	blescanner.hci_enable_le_scan(sock)
 	
 	#Keep scanning until the manager is told to stop.
 	while scanning:
 		
-		returnedList = blescan.parse_events(sock, 10)
+		returnedList = blescanner.parse_events(sock, 10)
 		
 		for beacon in returnedList:
 			beaconParts = beacon.split(",")
