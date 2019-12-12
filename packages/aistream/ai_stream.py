@@ -17,8 +17,6 @@ import packages.imutils as iu
 
 
 class aiStreamer:
-    #def __init__(self, capture, name, vpu, ai_model, probability, detect_flag, post, cap_id, vpu_schedule, zones,
-    #             zones_colour, zones_flag, motion_flag, db, bot, **kwargs):
     def __init__(self):
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] setting up AI VPU target devices")
         self.frame_count = 0
@@ -50,16 +48,6 @@ class aiStreamer:
         self.home_dir = str(Path.home())
 
     def setup(self):
-        sbc_id = ""
-        sbc_name = ""
-        for retreive in self.db_sqlite.execute('select sbc_device_id, sbc_name from sbc_config'):
-            sbc_id = retreive[0]
-            sbc_name = retreive[1]
-        vpu_device_id = self.vpu
-        vpu_device_name = ""
-        for retreive in self.db_sqlite.execute('select vpu_device_name from vpu_config where vpu_device_id = ' + vpu_device_id):
-            vpu_device_name = retreive[0]
-
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] loading model")
         model_name = ""
         for retreive in self.db_sqlite.execute('select * from ai_models where model_id = ' + self.ai_model):
