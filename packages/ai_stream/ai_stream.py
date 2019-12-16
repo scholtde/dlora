@@ -113,6 +113,7 @@ class aiStreamer:
             self.ble_scanner_returned_device_dict = self.ble_scanner.parse_events(self.ble_sock, 1)
 
             #  Iinit Dlora list
+            self.dlora_class_vs_device = {}
             for d in range(len(self.model_defined_objects)):
                 self.dlora_class_vs_device[self.model_defined_objects[d]] = []
 
@@ -220,8 +221,12 @@ class aiStreamer:
                 # greater than the minimum confidence.
                 if confidence > defined_probability:
                     obj_count += 1
+
                     found_object = self.CLASSES[idx]
-                    dlora_label = str(self.dlora_class_vs_device[found_object])
+                    dlora_label = "unknown"
+                    if found_object in self.dlora_class_vs_device:
+                        dlora_label = str(self.dlora_class_vs_device[found_object])
+
                     """if self.CLASSES[idx] != object:
                       # Skip rest of the statements if the object is not defined
                       continue
