@@ -47,7 +47,7 @@ class aiStreamer:
         model_name = "MobileNetSSD"
 
         # Notification Engine totals
-        self.totals = []
+        self.totals = {}
 
         # Set the backend of the AI
         log = "setting up AI backends"
@@ -69,7 +69,7 @@ class aiStreamer:
 
         # Setup Dlora list
         for d in range(len(self.model_defined_objects)):
-            self.dlora_class_vs_device.append({self.model_defined_objects[d]: None})
+            self.dlora_class_vs_device[self.model_defined_objects[d]] = None
         print(self.dlora_class_vs_device)
 
         # Load colours
@@ -118,7 +118,9 @@ class aiStreamer:
             self.ble_scanner_returned_device_dict = self.ble_scanner.parse_events(self.ble_sock, 1)
             for i in range(len(self.ble_known_things)):
                 if self.ble_scanner_returned_device_dict["UDID"] in self.ble_known_things[i]["UDID"]:
-                    print(self.ble_known_things[i]["Details"])
+                    for o in range(len(self.dlora_class_vs_device)):
+                        if self.ble_known_things[i]["object_classification"] in self.dlora_class_vs_device:
+                            print(self.ble_known_things[i]["Details"])
 
     def update(self):
         # Read frame from the stream
