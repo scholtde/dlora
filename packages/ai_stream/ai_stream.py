@@ -30,7 +30,7 @@ class aiStreamer:
         self.ble_scanner_returned_device_dict = None
 
         # Dlora
-        self.dlora_class_vs_device = []
+        self.dlora_class_vs_device = {}
 
     def setup(self):
         log = "loading model.."
