@@ -244,7 +244,7 @@ class aiStreamer:
                     # Draw Box
                     self.frame = cv2.rectangle(self.frame, (startX, startY), (endX, endY), self.COLORS[idx], 2)
                     cv2.putText(self.frame, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.COLORS[idx], 2)
-                    cv2.putText(self.frame, dlora_label, (startX + 50, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.COLORS[idx], 2)
+                    cv2.putText(self.frame, dlora_label, (startX + 130, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.COLORS[idx], 2)
                     cv2.line(self.frame, (tp_x-15, tp_y), (tp_x+15, tp_y), self.COLORS[idx], 3)
                     cv2.line(self.frame, (tp_x, tp_y-15), (tp_x, tp_y+15), self.COLORS[idx], 3)
                     cv2.circle(self.frame, (tp_x, tp_y), 10, (255, 255, 255), 2)
