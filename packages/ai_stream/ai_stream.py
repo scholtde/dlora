@@ -123,6 +123,8 @@ class aiStreamer:
                         self.dlora_class_vs_device[self.ble_known_things[i]["object_classification"]].append(
                             self.ble_known_things[i]["Details"])
 
+            self.ble_scanner_returned_device_dict.clear()
+
     def update(self):
         # Read frame from the stream
         ret, self.frame = self.capture.read()
