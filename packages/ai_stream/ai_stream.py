@@ -99,8 +99,6 @@ class aiStreamer:
         t.daemon = True
         t.start()
 
-        return self
-
     def stop_ble_loop(self):
         self.ble_stop = True
 
