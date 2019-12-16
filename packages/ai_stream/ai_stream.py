@@ -98,7 +98,6 @@ class aiStreamer:
         t = Thread(target=self.ble_loop, name="ble_loop", args=())
         t.daemon = True
         t.start()
-        print("BLE_thread_started!!")
 
     def stop_ble_loop(self):
         self.ble_stop = True
