@@ -57,12 +57,14 @@ class bleScan:
         for c in pkt:
             myInteger += struct.unpack("B", bytes([c]))[0] * multiple
             multiple = 1
+
         return myInteger
 
     def returnstringpacket(self, pkt):
         myString = ""
         for c in pkt:
             myString += "%02x" % struct.unpack("B", bytes([c]))[0]
+
         return myString
 
     def printpacket(self, pkt):
@@ -75,9 +77,11 @@ class bleScan:
         addr.reverse()
         for b in addr:
             packable_addr.append(int(b, 16))
+
         return struct.pack("<BBBBBB", *packable_addr)
 
     def packed_bdaddr_to_string(self, bdaddr_packed):
+
         return ':'.join('%02x'%i for i in struct.unpack("<BBBBBB", bdaddr_packed[::-1]))
 
     def hci_enable_le_scan(self, sock):

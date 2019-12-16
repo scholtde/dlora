@@ -117,7 +117,7 @@ class Dlora:
 
         if self.ble_scanner is not None:
             print("BLE_thread_starting")
-            self.camera_ai.start_ble_loop()
+            self.camera_ai.ble_scanner.start_ble_loop()
             print("BLE_thread_started!!")
 
         while True:
