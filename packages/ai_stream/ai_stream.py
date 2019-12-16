@@ -67,11 +67,6 @@ class aiStreamer:
         self.model_defined_objects = lines
         f.close()
 
-        # Setup Dlora list
-        for d in range(len(self.model_defined_objects)):
-            self.dlora_class_vs_device[self.model_defined_objects[d]] = []
-        print(self.dlora_class_vs_device)
-
         # Load colours
         with open(self.colour_file) as f:
             lines = f.read().splitlines()
@@ -116,11 +111,16 @@ class aiStreamer:
             if self.ble_stop:
                 return
             self.ble_scanner_returned_device_dict = self.ble_scanner.parse_events(self.ble_sock, 1)
+
+            #  Iinit Dlora list
+            for d in range(len(self.model_defined_objects)):
+                self.dlora_class_vs_device[self.model_defined_objects[d]] = []
+
             for i in range(len(self.ble_known_things)):
                 if self.ble_scanner_returned_device_dict["UDID"] in self.ble_known_things[i]["UDID"]:
-                    for o in range(len(self.dlora_class_vs_device)):
-                        if self.ble_known_things[i]["object_classification"] in self.dlora_class_vs_device:
-                            print(self.ble_known_things[i]["Details"])
+                    if self.ble_known_things[i]["object_classification"] in self.dlora_class_vs_device:
+                        self.dlora_class_vs_device[self.ble_known_things[i]["object_classification"]].append(
+                            self.ble_known_things[i]["Details"])
 
     def update(self):
         # Read frame from the stream
@@ -221,6 +221,7 @@ class aiStreamer:
                 if confidence > defined_probability:
                     obj_count += 1
                     found_object = self.CLASSES[idx]
+                    dlora_label = str(self.dlora_class_vs_device[found_object])
                     """if self.CLASSES[idx] != object:
                       # Skip rest of the statements if the object is not defined
                       continue
@@ -238,6 +239,7 @@ class aiStreamer:
                     # Draw Box
                     self.frame = cv2.rectangle(self.frame, (startX, startY), (endX, endY), self.COLORS[idx], 2)
                     cv2.putText(self.frame, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.COLORS[idx], 2)
+                    cv2.putText(self.frame, dlora_label, (startX + 50, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.COLORS[idx], 2)
                     cv2.line(self.frame, (tp_x-15, tp_y), (tp_x+15, tp_y), self.COLORS[idx], 3)
                     cv2.line(self.frame, (tp_x, tp_y-15), (tp_x, tp_y+15), self.COLORS[idx], 3)
                     cv2.circle(self.frame, (tp_x, tp_y), 10, (255, 255, 255), 2)
