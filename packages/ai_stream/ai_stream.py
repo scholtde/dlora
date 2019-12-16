@@ -108,8 +108,9 @@ class aiStreamer:
                 return
             returnedDict = self.ble_scanner.parse_events(self.ble_sock, 1)
             #print(returnedDict)
-            for returnedDict["UDID"] in self.known_things["UDID"]:
-                print("known person")
+            for i in range(len(self.known_things)):
+                if returnedDict["UDID"] in self.known_things[i]["UDID"]:
+                    print(self.known_things[i]["Details"])
 
     def update(self):
         # Read frame from the stream
