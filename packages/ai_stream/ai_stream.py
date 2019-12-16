@@ -26,7 +26,7 @@ class aiStreamer:
         self.ble_scanner = None
         self.ble_sock = None
         self.ble_stop = False
-        self.known_UDID = None
+        self.known_things = None
 
     def setup(self):
         log = "loading model.."
@@ -108,7 +108,7 @@ class aiStreamer:
                 return
             returnedDict = self.ble_scanner.parse_events(self.ble_sock, 1)
             #print(returnedDict)
-            if returnedDict["UDID"] in self.known_UDID:
+            if returnedDict["UDID"] in self.known_things["UDID"]:
                 print("known person")
 
     def update(self):
