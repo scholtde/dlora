@@ -82,6 +82,8 @@ class Dlora:
         # Known UDID list
         self.known_UDID = ["0212233445566778899aabbccddeeff1"]
         self.camera_ai.known_UDID = self.known_UDID
+        if self.ble_scanner is not None:
+            self.camera_ai.start_ble_loop()
 
     def ble_services(self):
         # BLE scanner
@@ -110,8 +112,6 @@ class Dlora:
         return blescanner, sock
 
     def run(self):
-        if self.ble_scanner is not None:
-            self.camera_ai.start_ble_loop()
         # Display the stream
         log = "starting output video screen"
         logging.info(log)
