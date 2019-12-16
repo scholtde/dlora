@@ -95,7 +95,7 @@ class aiStreamer:
         return
 
     def start_ble_loop(self):
-        t = Thread(target=self.ble_loop(), name="ble_loop")
+        t = Thread(target=self.ble_loop(), name="ble_loop", args=())
         t.daemon = True
         t.start()
 
@@ -110,8 +110,8 @@ class aiStreamer:
                 return
             returnedDict = self.ble_scanner.parse_events(self.ble_sock, 1)
             #print(returnedDict)
-            # if returnedDict["UDID"] in self.known_UDID:
-            #     print("known person")
+            if returnedDict["UDID"] in self.known_UDID:
+                print("known person")
 
     def update(self):
         # Read frame from the stream
