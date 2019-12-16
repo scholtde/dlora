@@ -113,7 +113,7 @@ class aiStreamer:
             self.ble_scanner_returned_device_dict = self.ble_scanner.parse_events(self.ble_sock, 1)
 
             #  Iinit Dlora list
-            self.dlora_class_vs_device.clear()
+            # self.dlora_class_vs_device.clear()
             for d in range(len(self.model_defined_objects)):
                 self.dlora_class_vs_device[self.model_defined_objects[d]] = []
 
@@ -123,7 +123,7 @@ class aiStreamer:
                         self.dlora_class_vs_device[self.ble_known_things[i]["object_classification"]].append(
                             self.ble_known_things[i]["Details"])
 
-            self.ble_scanner_returned_device_dict.clear()
+            # self.ble_scanner_returned_device_dict.clear()
             print(self.dlora_class_vs_device)
 
     def update(self):

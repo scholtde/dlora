@@ -118,7 +118,7 @@ class bleScan:
         SCAN_TYPE = 0x01
 
     def parse_events(self, sock, loop_count=100):
-        self.discovered_devices.clear()
+        # self.discovered_devices.clear()
 
         old_filter = sock.getsockopt(bluez.SOL_HCI, bluez.HCI_FILTER, 14)
 
