@@ -47,7 +47,7 @@ class aiStreamer:
         model_name = "MobileNetSSD"
 
         # Notification Engine totals
-        self.totals = {}
+        self.totals = []
 
         # Set the backend of the AI
         log = "setting up AI backends"
