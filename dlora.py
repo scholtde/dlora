@@ -83,7 +83,7 @@ class Dlora:
         self.known_things = [{"UDID": "0212233445566778899aabbccddeeff1",
                             "object_classification": "person",
                             "Details": "Dewald Scholtz"}]
-        self.camera_ai.known_things = self.known_things
+        self.camera_ai.ble_known_things = self.known_things
         if self.ble_scanner is not None:
             self.camera_ai.start_ble_loop()
 

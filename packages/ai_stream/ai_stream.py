@@ -26,7 +26,11 @@ class aiStreamer:
         self.ble_scanner = None
         self.ble_sock = None
         self.ble_stop = False
-        self.known_things = None
+        self.ble_known_things = None
+        self.ble_scanner_returned_device_dict = None
+
+        # Dlora
+        self.dlora_class_vs_device = []
 
     def setup(self):
         log = "loading model.."
@@ -62,6 +66,11 @@ class aiStreamer:
         # Load all the objects defined in the model to serve as default fallback
         self.model_defined_objects = lines
         f.close()
+
+        # Setup Dlora list
+        for d in range(len(self.model_defined_objects)):
+            self.dlora_class_vs_device.append({self.model_defined_objects: []})
+        print(self.dlora_class_vs_device)
 
         # Load colours
         with open(self.colour_file) as f:
@@ -106,11 +115,10 @@ class aiStreamer:
         while True:
             if self.ble_stop:
                 return
-            returnedDict = self.ble_scanner.parse_events(self.ble_sock, 1)
-            #print(returnedDict)
-            for i in range(len(self.known_things)):
-                if returnedDict["UDID"] in self.known_things[i]["UDID"]:
-                    print(self.known_things[i]["Details"])
+            self.ble_scanner_returned_device_dict = self.ble_scanner.parse_events(self.ble_sock, 1)
+            for i in range(len(self.ble_known_things)):
+                if self.ble_scanner_returned_device_dict["UDID"] in self.ble_known_things[i]["UDID"]:
+                    print(self.ble_known_things[i]["Details"])
 
     def update(self):
         # Read frame from the stream
@@ -231,6 +239,10 @@ class aiStreamer:
                     cv2.line(self.frame, (tp_x-15, tp_y), (tp_x+15, tp_y), self.COLORS[idx], 3)
                     cv2.line(self.frame, (tp_x, tp_y-15), (tp_x, tp_y+15), self.COLORS[idx], 3)
                     cv2.circle(self.frame, (tp_x, tp_y), 10, (255, 255, 255), 2)
+
+                    # Draw DLORA results
+
+
 
                     # self.totals[defined_objects.index(found_object)] += 1
                     # detected_objects.append(
