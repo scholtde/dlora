@@ -113,7 +113,7 @@ class aiStreamer:
             self.ble_scanner_returned_device_dict = self.ble_scanner.parse_events(self.ble_sock, 1)
 
             #  Iinit Dlora list
-            self.dlora_class_vs_device = {}
+            self.dlora_class_vs_device.clear()
             for d in range(len(self.model_defined_objects)):
                 self.dlora_class_vs_device[self.model_defined_objects[d]] = []
 
