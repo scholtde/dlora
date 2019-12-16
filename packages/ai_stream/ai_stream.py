@@ -108,7 +108,7 @@ class aiStreamer:
                 return
             returnedDict = self.ble_scanner.parse_events(self.ble_sock, 1)
             #print(returnedDict)
-            if returnedDict["UDID"] in self.known_things["UDID"]:
+            for returnedDict["UDID"] in self.known_things["UDID"]:
                 print("known person")
 
     def update(self):
