@@ -124,6 +124,7 @@ class aiStreamer:
                             self.ble_known_things[i]["Details"])
 
             self.ble_scanner_returned_device_dict.clear()
+            print(self.ble_scanner_returned_device_dict)
 
     def update(self):
         # Read frame from the stream
