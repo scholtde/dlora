@@ -74,15 +74,15 @@ class Dlora:
         self.camera_ai.AI_detection = self.object_detect_flag
         self.camera_ai.probability = self.probability
         # Setup ble services
-        ble_scanner, ble_sock = self.ble_services()
-        self.camera_ai.ble_scanner = ble_scanner
-        self.camera_ai.ble_sock = ble_sock
+        self.ble_scanner, self.ble_sock = self.ble_services()
+        self.camera_ai.ble_scanner = self.ble_scanner
+        self.camera_ai.ble_sock = self.ble_sock
         # Setup the ai object
         self.camera_ai.setup()
         # Known UDID list
         self.known_UDID = ["0212233445566778899aabbccddeeff1"]
         self.camera_ai.known_UDID = self.known_UDID
-        if ble_scanner is not None:
+        if self.ble_scanner is not None:
             self.camera_ai.start_ble_loop()
 
     def ble_services(self):
