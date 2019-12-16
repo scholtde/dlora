@@ -82,8 +82,8 @@ class Dlora:
         # Known UDID list
         self.known_UDID = ["0212233445566778899aabbccddeeff1"]
         self.camera_ai.known_UDID = self.known_UDID
-        if self.ble_scanner is not None:
-            self.camera_ai.start_ble_loop()
+        # if self.ble_scanner is not None:
+        #     self.camera_ai.start_ble_loop()
 
     def ble_services(self):
         # BLE scanner
