@@ -69,7 +69,7 @@ class aiStreamer:
 
         # Setup Dlora list
         for d in range(len(self.model_defined_objects)):
-            self.dlora_class_vs_device.append({self.model_defined_objects: []})
+            self.dlora_class_vs_device.append({self.model_defined_objects[d]: None})
         print(self.dlora_class_vs_device)
 
         # Load colours
