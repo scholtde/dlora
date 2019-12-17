@@ -238,7 +238,7 @@ class aiStreamer:
                     dlora_label = "unknown"
                     if found_object in self.dlora_class_vs_device:
                         dlora_label = str(self.dlora_class_vs_device[found_object])
-                    print(dlora_label)
+                    print(self.dlora_class_vs_device)
 
                     """if self.CLASSES[idx] != object:
                       # Skip rest of the statements if the object is not defined
