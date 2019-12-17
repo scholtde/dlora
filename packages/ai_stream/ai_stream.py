@@ -119,16 +119,22 @@ class aiStreamer:
             # self.ble_scanner_returned_device_dict = self.ble_scanner.parse_events(self.ble_sock, 1)
             ble_done = self.ble_scanner.parse_events(self.ble_sock, 1)
 
-            # if self.ble_scanner.parse_events(self.ble_sock, 1):
-            #     for i in range(len(self.ble_known_things)):
-            #         # Check if dictionary is empty
-            #         if self.ble_scanner_returned_device_dict:
-            #             if self.ble_scanner_returned_device_dict["UDID"] in self.ble_known_things[i]["UDID"]:
-            #                 if self.ble_known_things[i]["object_classification"] in self.dlora_class_vs_device:
-            #                     self.dlora_class_vs_device[self.ble_known_things[i]["object_classification"]].append(
-            #                         self.ble_known_things[i]["Details"])
+            if ble_done:
+                # Check if scanned dictionary buffer is empty
+                if self.ble_scanner.discovered_devices_buffer:
+                    # Run through each device in the discovery buffer
+                    for device in self.ble_scanner.discovered_devices_buffer:
+                        # Run through each 'known' device
+                        for i in range(len(self.ble_known_things)):
+                            # Check if the ID exist in the list of 'known' devices
+                            if device["UDID"] in self.ble_known_things[i]["UDID"]:
+                                # Check if the object 'class' exist for the specific AI model
+                                if self.ble_known_things[i]["object_classification"] in self.dlora_class_vs_device:
+                                    # Update the datails of the classification (dlora vs. discovered device)
+                                    self.dlora_class_vs_device[
+                                        self.ble_known_things[i]["object_classification"]].append(
+                                        self.ble_known_things[i]["Details"])
 
-            # self.ble_scanner_returned_device_dict.clear()
 
     def update(self):
         # Read frame from the stream

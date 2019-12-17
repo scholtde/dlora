@@ -149,6 +149,8 @@ class bleScan:
         results = []
         myFullList = []
         for i in range(0, loop_count):
+            print(i)
+
             pkt = sock.recv(255)
             ptype, event, plen = struct.unpack("BBB", pkt[:3])
             if event == bluez.EVT_INQUIRY_RESULT_WITH_RSSI:
@@ -204,9 +206,10 @@ class bleScan:
 
         sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter)
 
-        print("\n")
-        print(self.discovered_devices_buffer)
-        print("\n")
+        # print("\n")
+        # print(self.discovered_devices_buffer)
+        # print("\n")
+
         # Parsing is done
         self.parse_done = True
 
