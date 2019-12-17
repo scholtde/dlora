@@ -118,7 +118,7 @@ class aiStreamer:
 
             # self.ble_scanner_returned_device_dict = self.ble_scanner.parse_events(self.ble_sock, 1)
             ble_done = self.ble_scanner.parse_events(self.ble_sock, 3)
-            print(done)
+            print("done")
 
             if ble_done:
                 # Check if scanned dictionary buffer is empty
