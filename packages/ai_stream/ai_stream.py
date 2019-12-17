@@ -118,7 +118,6 @@ class aiStreamer:
 
             # self.ble_scanner_returned_device_dict = self.ble_scanner.parse_events(self.ble_sock, 1)
             ble_done = self.ble_scanner.parse_events(self.ble_sock, 1)
-            print(self.ble_scanner.discovered_devices_buffer)
 
             if ble_done:
                 # Check if scanned dictionary buffer is empty
@@ -136,6 +135,7 @@ class aiStreamer:
                                         self.ble_known_things[i]["object_classification"]].append(
                                         self.ble_known_things[i]["Details"])
 
+            print(self.dlora_class_vs_device)
 
     def update(self):
         # Read frame from the stream
