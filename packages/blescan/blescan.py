@@ -144,17 +144,17 @@ class bleScan:
         flt = bluez.hci_filter_new()
         bluez.hci_filter_all_events(flt)
         bluez.hci_filter_set_ptype(flt, bluez.HCI_EVENT_PKT)
+        # Set a timeout in order for pasing time out if nothing on socket is received
         sock.settimeout(1)
+        # Set socket options
         sock.setsockopt(bluez.SOL_HCI, bluez.HCI_FILTER, flt)
 
         results = []
         myFullList = []
         for i in range(0, loop_count):
-            print(i)
-
             try:
+                # Bocking event, but will time out after the 'settimeout'
                 pkt = sock.recv(255)
-
 
                 ptype, event, plen = struct.unpack("BBB", pkt[:3])
                 if event == bluez.EVT_INQUIRY_RESULT_WITH_RSSI:
@@ -209,13 +209,15 @@ class bleScan:
                                 self.discovered_devices_buffer.append(self.discovered_devices)
 
             except Exception as e:
-                print(str(e))
+                # Start removing devices from the buffer
+                if self.discovered_devices_buffer:
+                    self.discovered_devices_buffer.pop(0)
 
         sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter)
 
-        # print("\n")
-        # print(self.discovered_devices_buffer)
-        # print("\n")
+        print("\n")
+        print(self.discovered_devices_buffer)
+        print("\n")
 
         # Parsing is done
         self.parse_done = True
