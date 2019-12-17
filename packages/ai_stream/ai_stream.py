@@ -29,9 +29,9 @@ class aiStreamer:
         self.ble_sock = None
         self.ble_stop = False
         self.ble_known_things = None
-        self.ble_scanner_returned_device_dict = None
 
         # Dlora
+        self.dlora_class_vs_device_buffer_length = 20
         self.dlora_class_vs_device = {}
 
     def setup(self):
@@ -132,10 +132,20 @@ class aiStreamer:
                             if device["UDID"] in self.ble_known_things[i]["UDID"]:
                                 # Check if the object 'class' exist for the specific AI model
                                 if self.ble_known_things[i]["object_classification"] in self.dlora_class_vs_device:
-                                    # Update the datails of the classification (dlora vs. discovered device)
-                                    self.dlora_class_vs_device[
-                                        self.ble_known_things[i]["object_classification"]].append(
-                                        self.ble_known_things[i]["Details"])
+                                    # Add to buffer
+                                    if len(self.dlora_class_vs_device[self.ble_known_things[i]["object_classification"]]) != self.dlora_class_vs_device_buffer_length:
+                                        # Update the datails of the classification (dlora vs. discovered device)
+                                        self.dlora_class_vs_device[
+                                            self.ble_known_things[i]["object_classification"]].append(
+                                            self.ble_known_things[i]["Details"])
+                                    else:
+                                        self.dlora_class_vs_device[
+                                            self.ble_known_things[i]["object_classification"]].pop(0)
+                                        # Update the datails of the classification (dlora vs. discovered device)
+                                        self.dlora_class_vs_device[
+                                            self.ble_known_things[i]["object_classification"]].append(
+                                            self.ble_known_things[i]["Details"])
+
 
     def update(self):
         # Read frame from the stream
