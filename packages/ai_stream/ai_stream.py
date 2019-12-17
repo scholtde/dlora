@@ -134,7 +134,8 @@ class aiStreamer:
                                 if self.ble_known_things[i]["object_classification"] in self.dlora_class_vs_device:
                                     # Update the datails of the classification (dlora vs. discovered device)
                                     self.dlora_class_vs_device[
-                                        self.ble_known_things[i]["object_classification"]] = self.ble_known_things[i]["Details"]
+                                        self.ble_known_things[i]["object_classification"]].append(
+                                        self.ble_known_things[i]["Details"])
 
     def update(self):
         # Read frame from the stream
@@ -238,8 +239,7 @@ class aiStreamer:
                     found_object = self.CLASSES[idx]
                     dlora_label = "unknown"
                     if found_object in self.dlora_class_vs_device:
-                        dlora_label = str(self.dlora_class_vs_device[found_object])
-                    print(self.dlora_class_vs_device)
+                        dlora_label = self.dlora_class_vs_device[found_object].pop()
 
                     """if self.CLASSES[idx] != object:
                       # Skip rest of the statements if the object is not defined
