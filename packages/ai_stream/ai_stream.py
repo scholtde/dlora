@@ -10,6 +10,8 @@ import numpy as np
 from threading import Thread
 from termcolor import colored
 
+# Dlora
+dlora_class_vs_device = {}
 
 class aiStreamer:
     def __init__(self):
@@ -67,6 +69,11 @@ class aiStreamer:
         self.model_defined_objects = lines
         f.close()
 
+        #  Iinit Dlora list
+        # self.dlora_class_vs_device.clear()
+        for d in range(len(self.model_defined_objects)):
+            self.dlora_class_vs_device[self.model_defined_objects[d]] = []
+
         # Load colours
         with open(self.colour_file) as f:
             lines = f.read().splitlines()
@@ -111,11 +118,6 @@ class aiStreamer:
             if self.ble_stop:
                 return
 
-            #  Iinit Dlora list
-            # self.dlora_class_vs_device.clear()
-            for d in range(len(self.model_defined_objects)):
-                self.dlora_class_vs_device[self.model_defined_objects[d]] = []
-
             # self.ble_scanner_returned_device_dict = self.ble_scanner.parse_events(self.ble_sock, 1)
             ble_done = self.ble_scanner.parse_events(self.ble_sock, 1)
 
@@ -132,8 +134,7 @@ class aiStreamer:
                                 if self.ble_known_things[i]["object_classification"] in self.dlora_class_vs_device:
                                     # Update the datails of the classification (dlora vs. discovered device)
                                     self.dlora_class_vs_device[
-                                        self.ble_known_things[i]["object_classification"]].append(
-                                        self.ble_known_things[i]["Details"])
+                                        self.ble_known_things[i]["object_classification"]] = self.ble_known_things[i]["Details"]
 
     def update(self):
         # Read frame from the stream
