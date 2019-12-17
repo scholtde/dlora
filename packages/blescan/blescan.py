@@ -152,58 +152,64 @@ class bleScan:
         for i in range(0, loop_count):
             print(i)
 
-            pkt = sock.recv(255)
-            ptype, event, plen = struct.unpack("BBB", pkt[:3])
-            if event == bluez.EVT_INQUIRY_RESULT_WITH_RSSI:
-                i =0
-            elif event == bluez.EVT_NUM_COMP_PKTS:
-                i =0
-            elif event == bluez.EVT_DISCONN_COMPLETE:
-                i =0
-            elif event == self.LE_META_EVENT:
-                subevent, = struct.unpack("B", bytes([pkt[3]]))
-                pkt = pkt[4:]
-                if subevent == self.EVT_LE_CONN_COMPLETE:
-                    pass
-                    # le_handle_connection_complete(pkt)
-                elif subevent == self.EVT_LE_ADVERTISING_REPORT:
-                    num_reports = struct.unpack("B", bytes([pkt[0]]))[0]
-                    report_pkt_offset = 0
+            try:
+                pkt = sock.recv(255)
 
-                    for k in range(0, num_reports):
-                        if self.DEBUG:
-                            print("-------------")
-                            # print("\tfullpacket: ", printpacket(pkt))
-                            print("\tTS:", time.time())
-                            print("\tUDID: ", self.printpacket(pkt[report_pkt_offset - 22: report_pkt_offset - 6]))
-                            print("\tMAJOR: ", self.printpacket(pkt[report_pkt_offset - 6: report_pkt_offset - 4]))
-                            print("\tMINOR: ", self.printpacket(pkt[report_pkt_offset - 4: report_pkt_offset - 2]))
-                            print("\tMAC address: ", self.packed_bdaddr_to_string(pkt[report_pkt_offset +
-                                                                                      3:report_pkt_offset + 9]))
-                            # commented out - don't know what this byte is.  It's NOT TXPower
-                            txpower, = struct.unpack("b", bytes([pkt[report_pkt_offset - 2]]))
-                            print("\t(Unknown):", txpower)
-                            rssi, = struct.unpack("b", bytes([pkt[report_pkt_offset - 1]]))
-                            print("\tRSSI:", rssi)
 
-                        # Create a dictionary of discovered devices
-                        self.discovered_devices = \
-                            dict(TS=time.time(),
-                                 MAC_Address=self.packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9]),
-                                 UDID=self.returnstringpacket(pkt[report_pkt_offset - 22: report_pkt_offset - 6]),
-                                 MAJOR=self.returnnumberpacket(pkt[report_pkt_offset - 6: report_pkt_offset - 4]),
-                                 MINOR=self.returnnumberpacket(pkt[report_pkt_offset - 4: report_pkt_offset - 2]),
-                                 TX_Power=struct.unpack("b", bytes([pkt[report_pkt_offset - 2]])),
-                                 RSSI=struct.unpack("b", bytes([pkt[report_pkt_offset - 1]])))
+                ptype, event, plen = struct.unpack("BBB", pkt[:3])
+                if event == bluez.EVT_INQUIRY_RESULT_WITH_RSSI:
+                    i =0
+                elif event == bluez.EVT_NUM_COMP_PKTS:
+                    i =0
+                elif event == bluez.EVT_DISCONN_COMPLETE:
+                    i =0
+                elif event == self.LE_META_EVENT:
+                    subevent, = struct.unpack("B", bytes([pkt[3]]))
+                    pkt = pkt[4:]
+                    if subevent == self.EVT_LE_CONN_COMPLETE:
+                        pass
+                        # le_handle_connection_complete(pkt)
+                    elif subevent == self.EVT_LE_ADVERTISING_REPORT:
+                        num_reports = struct.unpack("B", bytes([pkt[0]]))[0]
+                        report_pkt_offset = 0
 
-                        # Check the length of the buffer,
-                        # if it is not yet full, add a new item to the list,
-                        # if it reached the defined length then remove the first item and add the new item to the end
-                        if len(self.discovered_devices_buffer) != self.discovered_devices_buffer_length:
-                            self.discovered_devices_buffer.append(self.discovered_devices)
-                        else:
-                            self.discovered_devices_buffer.pop(0)
-                            self.discovered_devices_buffer.append(self.discovered_devices)
+                        for k in range(0, num_reports):
+                            if self.DEBUG:
+                                print("-------------")
+                                # print("\tfullpacket: ", printpacket(pkt))
+                                print("\tTS:", time.time())
+                                print("\tUDID: ", self.printpacket(pkt[report_pkt_offset - 22: report_pkt_offset - 6]))
+                                print("\tMAJOR: ", self.printpacket(pkt[report_pkt_offset - 6: report_pkt_offset - 4]))
+                                print("\tMINOR: ", self.printpacket(pkt[report_pkt_offset - 4: report_pkt_offset - 2]))
+                                print("\tMAC address: ", self.packed_bdaddr_to_string(pkt[report_pkt_offset +
+                                                                                          3:report_pkt_offset + 9]))
+                                # commented out - don't know what this byte is.  It's NOT TXPower
+                                txpower, = struct.unpack("b", bytes([pkt[report_pkt_offset - 2]]))
+                                print("\t(Unknown):", txpower)
+                                rssi, = struct.unpack("b", bytes([pkt[report_pkt_offset - 1]]))
+                                print("\tRSSI:", rssi)
+
+                            # Create a dictionary of discovered devices
+                            self.discovered_devices = \
+                                dict(TS=time.time(),
+                                     MAC_Address=self.packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9]),
+                                     UDID=self.returnstringpacket(pkt[report_pkt_offset - 22: report_pkt_offset - 6]),
+                                     MAJOR=self.returnnumberpacket(pkt[report_pkt_offset - 6: report_pkt_offset - 4]),
+                                     MINOR=self.returnnumberpacket(pkt[report_pkt_offset - 4: report_pkt_offset - 2]),
+                                     TX_Power=struct.unpack("b", bytes([pkt[report_pkt_offset - 2]])),
+                                     RSSI=struct.unpack("b", bytes([pkt[report_pkt_offset - 1]])))
+
+                            # Check the length of the buffer,
+                            # if it is not yet full, add a new item to the list,
+                            # if it reached the defined length then remove the first item and add the new item to the end
+                            if len(self.discovered_devices_buffer) != self.discovered_devices_buffer_length:
+                                self.discovered_devices_buffer.append(self.discovered_devices)
+                            else:
+                                self.discovered_devices_buffer.pop(0)
+                                self.discovered_devices_buffer.append(self.discovered_devices)
+
+            except Exception as e:
+                print(str(e))
 
         sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter)
 
