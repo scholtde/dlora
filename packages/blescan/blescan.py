@@ -144,6 +144,7 @@ class bleScan:
         flt = bluez.hci_filter_new()
         bluez.hci_filter_all_events(flt)
         bluez.hci_filter_set_ptype(flt, bluez.HCI_EVENT_PKT)
+        sock.settimeout(1)
         sock.setsockopt(bluez.SOL_HCI, bluez.HCI_FILTER, flt)
 
         results = []
