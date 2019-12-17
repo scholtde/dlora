@@ -239,7 +239,9 @@ class aiStreamer:
                     found_object = self.CLASSES[idx]
                     dlora_label = "unknown"
                     if found_object in self.dlora_class_vs_device:
-                        dlora_label = self.dlora_class_vs_device[found_object].pop()
+                        # Check if the list is not empty
+                        if self.dlora_class_vs_device[found_object]:
+                            dlora_label = self.dlora_class_vs_device[found_object].pop()
 
                     """if self.CLASSES[idx] != object:
                       # Skip rest of the statements if the object is not defined
