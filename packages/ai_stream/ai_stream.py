@@ -116,15 +116,16 @@ class aiStreamer:
             for d in range(len(self.model_defined_objects)):
                 self.dlora_class_vs_device[self.model_defined_objects[d]] = []
 
-            self.ble_scanner_returned_device_dict = self.ble_scanner.parse_events(self.ble_sock, 1)
+            # self.ble_scanner_returned_device_dict = self.ble_scanner.parse_events(self.ble_sock, 1)
 
-            for i in range(len(self.ble_known_things)):
-                # Check if dictionary is empty
-                if self.ble_scanner_returned_device_dict:
-                    if self.ble_scanner_returned_device_dict["UDID"] in self.ble_known_things[i]["UDID"]:
-                        if self.ble_known_things[i]["object_classification"] in self.dlora_class_vs_device:
-                            self.dlora_class_vs_device[self.ble_known_things[i]["object_classification"]].append(
-                                self.ble_known_things[i]["Details"])
+            # if self.ble_scanner.parse_events(self.ble_sock, 1):
+            #     for i in range(len(self.ble_known_things)):
+            #         # Check if dictionary is empty
+            #         if self.ble_scanner_returned_device_dict:
+            #             if self.ble_scanner_returned_device_dict["UDID"] in self.ble_known_things[i]["UDID"]:
+            #                 if self.ble_known_things[i]["object_classification"] in self.dlora_class_vs_device:
+            #                     self.dlora_class_vs_device[self.ble_known_things[i]["object_classification"]].append(
+            #                         self.ble_known_things[i]["Details"])
 
             # self.ble_scanner_returned_device_dict.clear()
             print(self.dlora_class_vs_device)

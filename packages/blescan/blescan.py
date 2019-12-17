@@ -17,6 +17,7 @@ import os
 import sys
 import struct
 import bluetooth._bluetooth as bluez
+import time
 
 
 class bleScan:
@@ -50,6 +51,11 @@ class bleScan:
         # Discovered devices dictionary,
         # this will be updated with scanned devices once it is started
         self.discovered_devices = {}
+        self.discovered_devices_buffer = []
+        self.discovered_devices_buffer_length = 10
+
+        # Check if parsing is still active
+        self.parse_done = False
 
     def returnnumberpacket(self, pkt):
         myInteger = 0
@@ -118,6 +124,9 @@ class bleScan:
         SCAN_TYPE = 0x01
 
     def parse_events(self, sock, loop_count=100):
+        self.parse_done = False
+
+        # Create default device discovery dictionary
         self.discovered_devices = \
             dict(MAC_Address="n/a",
                  UDID="n/a",
@@ -135,8 +144,8 @@ class bleScan:
         flt = bluez.hci_filter_new()
         bluez.hci_filter_all_events(flt)
         bluez.hci_filter_set_ptype(flt, bluez.HCI_EVENT_PKT)
-        sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, flt )
-        done = False
+        sock.setsockopt(bluez.SOL_HCI, bluez.HCI_FILTER, flt)
+
         results = []
         myFullList = []
         for i in range(0, loop_count):
@@ -157,33 +166,50 @@ class bleScan:
                 elif subevent == self.EVT_LE_ADVERTISING_REPORT:
                     num_reports = struct.unpack("B", bytes([pkt[0]]))[0]
                     report_pkt_offset = 0
+
                     for k in range(0, num_reports):
                         if self.DEBUG:
                             print("-------------")
-                            #print("\tfullpacket: ", printpacket(pkt))
+                            # print("\tfullpacket: ", printpacket(pkt))
+                            print("\tTS:", time.time())
                             print("\tUDID: ", self.printpacket(pkt[report_pkt_offset - 22: report_pkt_offset - 6]))
                             print("\tMAJOR: ", self.printpacket(pkt[report_pkt_offset - 6: report_pkt_offset - 4]))
                             print("\tMINOR: ", self.printpacket(pkt[report_pkt_offset - 4: report_pkt_offset - 2]))
-                            print("\tMAC address: ", self.packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9]))
+                            print("\tMAC address: ", self.packed_bdaddr_to_string(pkt[report_pkt_offset +
+                                                                                      3:report_pkt_offset + 9]))
                             # commented out - don't know what this byte is.  It's NOT TXPower
-                            txpower, = struct.unpack("b", bytes([pkt[report_pkt_offset -2]]))
+                            txpower, = struct.unpack("b", bytes([pkt[report_pkt_offset - 2]]))
                             print("\t(Unknown):", txpower)
-                            rssi, = struct.unpack("b", bytes([pkt[report_pkt_offset -1]]))
+                            rssi, = struct.unpack("b", bytes([pkt[report_pkt_offset - 1]]))
                             print("\tRSSI:", rssi)
 
                         # Create a dictionary of discovered devices
                         self.discovered_devices = \
-                            dict(MAC_Address=self.packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9]),
+                            dict(TS=time.time(),
+                                 MAC_Address=self.packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9]),
                                  UDID=self.returnstringpacket(pkt[report_pkt_offset - 22: report_pkt_offset - 6]),
                                  MAJOR=self.returnnumberpacket(pkt[report_pkt_offset - 6: report_pkt_offset - 4]),
                                  MINOR=self.returnnumberpacket(pkt[report_pkt_offset - 4: report_pkt_offset - 2]),
                                  TX_Power=struct.unpack("b", bytes([pkt[report_pkt_offset - 2]])),
                                  RSSI=struct.unpack("b", bytes([pkt[report_pkt_offset - 1]])))
-                        #print(self.discovered_devices)
 
-                    done = True
+                        # Check the length of the buffer,
+                        # if it is not yet full, add a new item to the list,
+                        # if it reached the defined length then remove the first item and add the new item to the end
+                        if len(self.discovered_devices_buffer) != self.discovered_devices_buffer_length:
+                            self.discovered_devices_buffer.append(self.discovered_devices)
+                        else:
+                            self.discovered_devices_buffer.pop(0)
+                            self.discovered_devices_buffer.append(self.discovered_devices)
 
-        sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter )
-        return self.discovered_devices
+        sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter)
+
+        print("\n")
+        print(self.discovered_devices_buffer)
+        print("\n")
+        # Parsing is done
+        self.parse_done = True
+
+        return self.parse_done
 
 
