@@ -215,10 +215,6 @@ class bleScan:
 
         sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter)
 
-        print("\n")
-        print(self.discovered_devices_buffer)
-        print("\n")
-
         # Parsing is done
         self.parse_done = True
 
