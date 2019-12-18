@@ -1,3 +1,33 @@
+
+
+"""
+// Copyright (c) 2019, RHIZOO CHRISTOS TECHNOLOGIES. All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//  * Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+//  * Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+//  * Neither the name of RHIZOO CHRISTOS TECHNOLOGIES nor the names of its
+//    contributors may be used to endorse or promote products derived
+//    from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ``AS IS'' AND ANY
+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""
+
 # BLE iBeaconScanner based on https://github.com/adamf/BLE/blob/master/ble-scanner.py
 # JCS 06/07/14
 # BLE scanner based on https://github.com/adamf/BLE/blob/master/ble-scanner.py
@@ -18,9 +48,10 @@ import sys
 import struct
 import bluetooth._bluetooth as bluez
 import time
+from termcolor import colored
 
 
-class bleScan:
+class BleScan:
     def __init__(self):
         self.DEBUG = False
         self.LE_META_EVENT = 0x3e
@@ -220,4 +251,42 @@ class bleScan:
 
         return self.parse_done
 
+# Following code herafter demonstrates BLE Scanner
+def ble_services(self):
+    # BLE scanner setup service
+    device_err = False
+    device_id = 0
+    try:
+        sock = bluez.hci_open_dev(device_id)
+        log = "bluetooth device opened"
+        print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
 
+    except Exception as e:
+        log = "accessing bluetooth device: " + str(e)
+        print("[", colored("ERROR", 'red', attrs=['bold']), "  ] " + log)
+        device_err = True
+        sock = None
+
+    if device_err:
+        blescanner = None
+    else:
+        blescanner = BleScan()
+        blescanner.hci_le_set_scan_parameters(sock)
+        blescanner.hci_enable_le_scan(sock)
+
+    return blescanner, sock
+
+
+if __name__ == '__main__':
+    # Setup ble services
+    ble_scanner, ble_sock = ble_services()
+    # Display debug info on terminal
+    ble_scanner.DEBUG = True
+
+    while True:
+        try:
+            # self.ble_scanner_returned_device_dict = self.ble_scanner.parse_events(self.ble_sock, 1)
+            ble_done = ble_scanner.parse_events(ble_sock, 1)
+
+        except KeyboardInterrupt:
+            sys.exit()
