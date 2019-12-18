@@ -29,9 +29,9 @@ class Dlora:
         # Camera and some model settings..
         # The below are intended to be defined externally by the user
         self.stream = "rtsp://192.168.1.101:554/av0_1"
-        self.cam_name = "logitec c920 webcam"
-        self.cam_desc = "just a normal webcam"
-        self.cam_defined_objects = {"person": 30, "car": 50}
+        self.cam_name = "PTZ LAB IP Cam"
+        self.cam_desc = "just a normal IP cam"
+        self.cam_defined_objects = {"person": 30, "car": 50, "tvmonitor": 20}
         self.object_detect_flag = True
         self.probability = 50  # if objects are not explicitly defined, this default value is used
 
