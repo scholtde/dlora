@@ -252,7 +252,7 @@ class BleScan:
         return self.parse_done
 
 # Following code herafter demonstrates BLE Scanner
-def ble_services(self):
+def ble_services():
     # BLE scanner setup service
     device_err = False
     device_id = 0
