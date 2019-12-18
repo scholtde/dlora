@@ -31,7 +31,7 @@ class aiStreamer:
         self.ble_known_things = None
 
         # Dlora
-        self.dlora_class_vs_device_buffer_length = 20
+        self.dlora_class_vs_device_buffer_length = 30
         self.dlora_class_vs_device = {}
 
     def setup(self):
