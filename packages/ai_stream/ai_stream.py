@@ -146,25 +146,23 @@ class aiStreamer:
                                             self.ble_known_things[i]["object_classification"]].append(
                                             self.ble_known_things[i]["Details"])
 
-
     def update(self):
         # Read frame from the stream
         ret, self.frame = self.capture.read()
+
+        # Resize the frame as desired
         w, h = 640, 360  # 16:9 aspect
         self.frame = cv2.resize(self.frame, (w, h))
 
-        # if a frame is not frozen, then...
         cam_label = self.cam_name
+
+        # if a frame is not frozen, then...
         if ret is False:
             label = "Stream OK - Detecting..."
             self.frame = self.ai_object_detect()
             self.frame = cv2.putText(self.frame, label, (5, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-            self.frame = cv2.putText(self.frame, cam_label, (5, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            self.frame = cv2.putText(self.frame, cam_label, (5, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
-            # Resize the frame
-            # self.frame = iu.resize(self.frame, width=300)
-
-            # cv2.imshow("CAM" + str(self.cap_id), new_frame)
             return np.array(self.frame)
 
         # If there are issues with retrieving the frame
@@ -173,10 +171,7 @@ class aiStreamer:
 
             # add the label in the frame
             self.frame = cv2.putText(self.frame, label, (5, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-            self.frame = cv2.putText(self.frame, cam_label, (5, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-
-            # Resize the frame
-            # self.frame = iu.resize(self.frame, width=300)
+            self.frame = cv2.putText(self.frame, cam_label, (5, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
             return np.array(self.frame)
 
@@ -193,15 +188,13 @@ class aiStreamer:
         self.net.setInput(blob)
         detections = self.net.forward()
 
-        detect_array = []
-        detected_objects = []
         defined_objects = []
 
         # Extract objects from the dictionary which the user defined
         for object in self.cam_defined_objects:
             defined_objects.append(object)
 
-        # If no objects are defined, then load all the model objects
+        # If no objects are defined, then load all object classes from the model
         if not defined_objects:
             defined_objects = self.model_defined_objects
 
@@ -215,7 +208,6 @@ class aiStreamer:
             # extract the confidence (i.e., probability) associated with
             # the prediction
             confidence = detections[0, 0, i, 2]
-            point = None
 
             # extract the index of the class label from the
             # `detections`, then compute the (x, y)-coordinates of
@@ -223,15 +215,16 @@ class aiStreamer:
             idx = int(detections[0, 0, i, 1])
             box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
             (startX, startY, endX, endY) = box.astype("int")
-            zone_id = 0
+
             # Check if there are tampering or false detection
+            # (these constitute objects bigger than 90% of the frame in width or height)
             if (endX - startX)/w > 0.9 or (endY - startY)/h > 0.9:
                 continue
 
             # Draw the prediction on the frame
             label = "{}: {:.2f}%".format(self.CLASSES[idx], confidence * 100)
 
-            # Don't cut-off label
+            # This prevents the label from being cut off
             y = startY - 15 if startY - 15 > 15 else startY + 15
 
             # Only check defined objects
@@ -241,6 +234,7 @@ class aiStreamer:
                     defined_probability = self.probability/100
                 else:
                     defined_probability = self.cam_defined_objects[self.CLASSES[idx]]/100
+
                 # filter out weak detections by ensuring the `confidence` is
                 # greater than the minimum confidence.
                 if confidence > defined_probability:
@@ -251,88 +245,24 @@ class aiStreamer:
                     if found_object in self.dlora_class_vs_device:
                         # Check if the list is not empty
                         if self.dlora_class_vs_device[found_object]:
+                            # Remove the item from the buffer
                             dlora_label = self.dlora_class_vs_device[found_object].pop()
 
-                    """if self.CLASSES[idx] != object:
-                      # Skip rest of the statements if the object is not defined
-                      continue
-                    """
-                    # Test point for Zone detection (object in zone or not?)
                     tp_x = int(startX + ((endX - startX) / 2))
                     tp_y = int(endY - ((endY - startY) / 2))
-                    # if self.CLASSES[idx] == "person":
-                    #     tp_y = int(endY - ((endY - startY) / 5)) # move offset 1/5th from bounding box bottom
-                    # if self.CLASSES[idx] == "car":
-                    #     tp_y = int(endY - ((endY - startY) / 3)) # move offset 1/3th from bounding box bottom
 
                     self.is_detect = True
 
                     # Draw Box
                     self.frame = cv2.rectangle(self.frame, (startX, startY), (endX, endY), self.COLORS[idx], 2)
                     cv2.putText(self.frame, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.COLORS[idx], 2)
-                    cv2.putText(self.frame, dlora_label, (startX + 130, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.COLORS[idx], 2)
-                    cv2.line(self.frame, (tp_x-15, tp_y), (tp_x+15, tp_y), self.COLORS[idx], 3)
-                    cv2.line(self.frame, (tp_x, tp_y-15), (tp_x, tp_y+15), self.COLORS[idx], 3)
-                    cv2.circle(self.frame, (tp_x, tp_y), 10, (255, 255, 255), 2)
+                    #cv2.line(self.frame, (tp_x-15, tp_y), (tp_x+15, tp_y), self.COLORS[idx], 3)
+                    #cv2.line(self.frame, (tp_x, tp_y-15), (tp_x, tp_y+15), self.COLORS[idx], 3)
+                    #cv2.circle(self.frame, (tp_x, tp_y), 10, (255, 255, 255), 2)
 
                     # Draw DLORA results
-
-
-
-                    # self.totals[defined_objects.index(found_object)] += 1
-                    # detected_objects.append(
-                    #     dict(zone_id=str(zone_id),
-                    #          classification=found_object,
-                    #          probability=str(round(confidence * 100, 2))))
-                    #
-                    # detect_array.append(
-                    #     dict(capture_id=str(self.cap_id),
-                    #          zone_id=str(zone_id),
-                    #          classification=found_object,
-                    #          probability=str(round(confidence * 100, 2)),
-                    #          bb_coordinates=[str(startX), str(startY), str(endX), str(endY)]))
-
-        # # Accumulate the detections
-        # self.accumulate(detect_array, self.is_detect)
-        # # Were there any ai detections
-        # if self.is_detect:
-        #     # Is the positive detection a consecutive frame from previous detections
-        #     if self.frame_count - 1 == self.frame_marker:
-        #         # Increase consecutive frame positives
-        #         self.frame_consecutive_detections += 1
-        #     else:
-        #         # Set marker with detection positive frame count for a next time test
-        #         self.frame_marker = self.frame_count
-        #
-        #     # If there are more consecutive positive frames than defined, set the ai detections as "True Positives"
-        #     if self.frame_consecutive_detections > 2:
-        #         # Reset consecutive positive detections
-        #         self.frame_consecutive_detections = 0
-        #         # Let the bot know there are detections
-        #         self.bot.ai_detections_list[self.cap_id] = self.cam_name + \
-        #                                                    "\nObjects: " + str(detected_objects) + \
-        #                                                    "\n\nTotal Objects: " + str(sum(self.totals)) + \
-        #                                                    "\nOccurred at: " + str(time.ctime())
-        #         self.bot.ai_detections_list_notifications[self.cap_id] = self.totals.copy()
-        #         self.is_true_detect = True
-        #
-        #         #if time.time() - self.writer_time > 1:
-        #         #    self.writer_time = time.time()
-        #         if self.bot.annotation_mode and \
-        #                 self.bot.annotation_ready is False and \
-        #                 self.bot.annotation_ready_next and \
-        #                 self.bot.annotation_selected_cam == self.cap_id:
-        #             self.bot.annotation_frame = self.frame
-        #             self.bot.annotation_frame_shape = (w, h)
-        #             self.bot.annotation_frame_save = clean_frame
-        #             self.bot.annotation_ready = True
-        #
-        # else:
-        #     self.bot.ai_detections_list_notifications[self.cap_id] = None
-        #
-        # # Reset totals
-        # for i in range(len(self.totals)):
-        #     self.totals[i] = 0
+                    cv2.putText(self.frame, dlora_label, (startX + 130, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                self.COLORS[idx], 2)
 
         return self.frame
 
