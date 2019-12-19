@@ -135,9 +135,6 @@ class aiStreamer:
         t.daemon = True
         t.start()
 
-    def stop_ble_loop(self):
-        self.ble_stop = True
-
     def ble_loop(self):
         while True:
             if self.ble_stop:
@@ -171,6 +168,9 @@ class aiStreamer:
             #                             self.dlora_class_vs_device[
             #                                 self.ble_known_things[i]["object_classification"]].append(
             #                                 self.ble_known_things[i]["Details"])
+
+    def stop_ble_loop(self):
+        self.ble_stop = True
 
     def update(self):
         # Read frame from the stream

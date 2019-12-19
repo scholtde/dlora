@@ -97,20 +97,25 @@ class Dlora:
         self.camera_ai.cam_defined_objects = self.cam_defined_objects
         self.camera_ai.AI_detection = self.object_detect_flag
         self.camera_ai.probability = self.probability
-        # Setup ble services
+
+        # Setup BLE services
         self.ble_scanner, self.ble_sock = self.ble_services()
         self.ble_scanner.DEBUG = True
-        self.camera_ai.ble_scanner = self.ble_scanner
-        self.camera_ai.ble_sock = self.ble_sock
+        self.ble_stop = False
+        # self.camera_ai.ble_scanner = self.ble_scanner
+        # self.camera_ai.ble_sock = self.ble_sock
+
         # Setup the ai object
         self.camera_ai.setup()
+
         # Known UDID list
         self.known_things = [{"UDID": "0212233445566778899aabbccddeeff1",
                             "object_classification": "person",
                             "Details": "Dewald Scholtz"}]
         self.camera_ai.ble_known_things = self.known_things
+
         if self.ble_scanner is not None:
-            self.camera_ai.start_ble_loop()
+            self.start_ble_loop()
 
     def ble_services(self):
         # BLE scanner
@@ -137,6 +142,47 @@ class Dlora:
             blescanner.hci_enable_le_scan(sock)
 
         return blescanner, sock
+
+    def start_ble_loop(self):
+        t = Thread(target=self.ble_loop, name="ble_loop", args=())
+        t.daemon = True
+        t.start()
+
+    def ble_loop(self):
+        while True:
+            if self.ble_stop:
+                return
+
+            # self.ble_scanner_returned_device_dict = self.ble_scanner.parse_events(self.ble_sock, 1)
+            ble_done = self.ble_scanner.parse_events(self.ble_sock, 1)
+
+            # if ble_done:
+            #     # Check if scanned dictionary buffer is empty
+            #     if self.ble_scanner.discovered_devices_buffer:
+            #         # Run through each device in the discovery buffer
+            #         for device in self.ble_scanner.discovered_devices_buffer:
+            #             # Run through each 'known' device
+            #             for i in range(len(self.ble_known_things)):
+            #                 # Check if the ID exist in the list of 'known' devices
+            #                 if device["UDID"] in self.ble_known_things[i]["UDID"]:
+            #                     # Check if the object 'class' exist for the specific AI model
+            #                     if self.ble_known_things[i]["object_classification"] in self.dlora_class_vs_device:
+            #                         # Add to buffer
+            #                         if len(self.dlora_class_vs_device[self.ble_known_things[i]["object_classification"]]) != self.dlora_class_vs_device_buffer_length:
+            #                             # Update the datails of the classification (dlora vs. discovered device)
+            #                             self.dlora_class_vs_device[
+            #                                 self.ble_known_things[i]["object_classification"]].append(
+            #                                 self.ble_known_things[i]["Details"])
+            #                         else:
+            #                             self.dlora_class_vs_device[
+            #                                 self.ble_known_things[i]["object_classification"]].pop(0)
+            #                             # Update the datails of the classification (dlora vs. discovered device)
+            #                             self.dlora_class_vs_device[
+            #                                 self.ble_known_things[i]["object_classification"]].append(
+            #                                 self.ble_known_things[i]["Details"])
+
+    def stop_ble_loop(self):
+        self.ble_stop = True
 
     def run(self):
         # Display the stream
@@ -179,7 +225,7 @@ class Dlora:
         logging.info(log)
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
         self.capture.stop()
-        self.camera_ai.stop_ble_loop()
+        self.stop_ble_loop()
 
         cv2.destroyAllWindows()
         time.sleep(2)
