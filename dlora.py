@@ -39,6 +39,7 @@ import sys
 import ast
 from termcolor import colored
 from threading import Thread
+from multiprocessing import Process
 from mvnc import mvncapi as mvnc
 from openvino.inference_engine import IENetwork, IEPlugin
 # Custom packages
@@ -141,7 +142,7 @@ class Dlora:
         return blescanner, sock
 
     def start_ble_loop(self):
-        t = Thread(target=self.ble_loop, name="ble_loop", args=())
+        t = Process(target=self.ble_loop, name="ble_loop", args=())
         t.daemon = True
         t.start()
 
@@ -185,7 +186,7 @@ class Dlora:
         self.ble_scanner, self.ble_sock = self.ble_services()
         if self.ble_scanner is not None:
             self.ble_scanner.DEBUG = True
-            self.ble_loop()
+            self.start_ble_loop()
 
         # Display the stream
         log = "starting output video screen"
