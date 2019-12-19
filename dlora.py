@@ -199,9 +199,9 @@ class Dlora:
                 # self.frame = self.camera_ai.update()
 
                 # Display opencv window of the captured frame
-                cv2.namedWindow("CAM Capture", cv2.WINDOW_NORMAL)
-                cv2.resizeWindow("CAM Capture", 640, 480)
-                cv2.imshow("CAM Capture", self.frame)
+                # cv2.namedWindow("CAM Capture", cv2.WINDOW_NORMAL)
+                # cv2.resizeWindow("CAM Capture", 640, 480)
+                # cv2.imshow("CAM Capture", self.frame)
 
                 key = cv2.waitKey(1) & 0xFF
 
