@@ -193,34 +193,34 @@ class Dlora:
         logging.info(log)
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
 
-        while True:
-            try:
-                # Process new frames
-                self.frame = self.camera_ai.update()
-
-                # Display opencv window of the captured frame
-                cv2.namedWindow("CAM Capture", cv2.WINDOW_NORMAL)
-                cv2.resizeWindow("CAM Capture", 640, 480)
-                cv2.imshow("CAM Capture", self.frame)
-
-                key = cv2.waitKey(1) & 0xFF
-
-                # if the `q` key is pressed, do cleanup and break from the loop
-                if key == ord("q"):
-                    log = "exiting..."
-                    logging.info(log)
-                    print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
-                    self.end()
-
-                    return False
-
-            except KeyboardInterrupt:
-                log = "exiting..."
-                logging.info(log)
-                print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
-                self.end()
-
-                return False
+        # while True:
+        #     try:
+        #         # Process new frames
+        #         self.frame = self.camera_ai.update()
+        #
+        #         # Display opencv window of the captured frame
+        #         cv2.namedWindow("CAM Capture", cv2.WINDOW_NORMAL)
+        #         cv2.resizeWindow("CAM Capture", 640, 480)
+        #         cv2.imshow("CAM Capture", self.frame)
+        #
+        #         key = cv2.waitKey(1) & 0xFF
+        #
+        #         # if the `q` key is pressed, do cleanup and break from the loop
+        #         if key == ord("q"):
+        #             log = "exiting..."
+        #             logging.info(log)
+        #             print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
+        #             self.end()
+        #
+        #             return False
+        #
+        #     except KeyboardInterrupt:
+        #         log = "exiting..."
+        #         logging.info(log)
+        #         print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
+        #         self.end()
+        #
+        #         return False
 
     def end(self):
         # Stop the stream list
