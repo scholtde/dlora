@@ -93,11 +93,11 @@ class Dlora:
         # self.camera_ai = ai.aiStreamer()
 
         # Initialize ai object members
-        # self.camera_ai.capture = self.capture
-        # self.camera_ai.cam_name = self.cam_name
-        # self.camera_ai.cam_defined_objects = self.cam_defined_objects
-        # self.camera_ai.AI_detection = self.object_detect_flag
-        # self.camera_ai.probability = self.probability
+        self.camera_ai.capture = self.capture
+        self.camera_ai.cam_name = self.cam_name
+        self.camera_ai.cam_defined_objects = self.cam_defined_objects
+        self.camera_ai.AI_detection = self.object_detect_flag
+        self.camera_ai.probability = self.probability
 
         # Setup BLE services
         self.ble_scanner = None
@@ -107,13 +107,13 @@ class Dlora:
         # self.camera_ai.ble_sock = self.ble_sock
 
         # Setup the ai object
-        # self.camera_ai.setup()
+        self.camera_ai.setup()
 
         # Known UDID list
         self.known_things = [{"UDID": "0212233445566778899aabbccddeeff1",
                             "object_classification": "person",
                             "Details": "Dewald Scholtz"}]
-        # self.camera_ai.ble_known_things = self.known_things
+        self.camera_ai.ble_known_things = self.known_things
 
     def ble_services(self):
         # BLE scanner
@@ -196,7 +196,7 @@ class Dlora:
         while True:
             try:
                 # Process new frames
-                # self.frame = self.camera_ai.update()
+                self.frame = self.camera_ai.update()
 
                 # Display opencv window of the captured frame
                 cv2.namedWindow("CAM Capture", cv2.WINDOW_NORMAL)
