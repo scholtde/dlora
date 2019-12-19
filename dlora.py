@@ -99,6 +99,7 @@ class Dlora:
         self.camera_ai.probability = self.probability
         # Setup ble services
         self.ble_scanner, self.ble_sock = self.ble_services()
+        self.ble_scanner.DEBUG = True
         self.camera_ai.ble_scanner = self.ble_scanner
         self.camera_ai.ble_sock = self.ble_sock
         # Setup the ai object
