@@ -87,17 +87,17 @@ class Dlora:
         self.frame = np.zeros(shape=[360, 640, 3], dtype=np.uint8)
 
         # Start capturing frames from the camera stream
-        self.capture = VideoStream(self.stream).start()
+        # self.capture = VideoStream(self.stream).start()
 
         # Create a AI streamer to pass frames to the object detector
-        self.camera_ai = ai.aiStreamer()
+        # self.camera_ai = ai.aiStreamer()
 
         # Initialize ai object members
-        self.camera_ai.capture = self.capture
-        self.camera_ai.cam_name = self.cam_name
-        self.camera_ai.cam_defined_objects = self.cam_defined_objects
-        self.camera_ai.AI_detection = self.object_detect_flag
-        self.camera_ai.probability = self.probability
+        # self.camera_ai.capture = self.capture
+        # self.camera_ai.cam_name = self.cam_name
+        # self.camera_ai.cam_defined_objects = self.cam_defined_objects
+        # self.camera_ai.AI_detection = self.object_detect_flag
+        # self.camera_ai.probability = self.probability
 
         # Setup BLE services
         self.ble_scanner = None
@@ -107,13 +107,13 @@ class Dlora:
         # self.camera_ai.ble_sock = self.ble_sock
 
         # Setup the ai object
-        self.camera_ai.setup()
+        # self.camera_ai.setup()
 
         # Known UDID list
         self.known_things = [{"UDID": "0212233445566778899aabbccddeeff1",
                             "object_classification": "person",
                             "Details": "Dewald Scholtz"}]
-        self.camera_ai.ble_known_things = self.known_things
+        # self.camera_ai.ble_known_things = self.known_things
 
     def ble_services(self):
         # BLE scanner
@@ -193,34 +193,34 @@ class Dlora:
         logging.info(log)
         print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
 
-        # while True:
-        #     try:
-        #         # Process new frames
-        #         self.frame = self.camera_ai.update()
-        #
-        #         # Display opencv window of the captured frame
-        #         cv2.namedWindow("CAM Capture", cv2.WINDOW_NORMAL)
-        #         cv2.resizeWindow("CAM Capture", 640, 480)
-        #         cv2.imshow("CAM Capture", self.frame)
-        #
-        #         key = cv2.waitKey(1) & 0xFF
-        #
-        #         # if the `q` key is pressed, do cleanup and break from the loop
-        #         if key == ord("q"):
-        #             log = "exiting..."
-        #             logging.info(log)
-        #             print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
-        #             self.end()
-        #
-        #             return False
-        #
-        #     except KeyboardInterrupt:
-        #         log = "exiting..."
-        #         logging.info(log)
-        #         print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
-        #         self.end()
-        #
-        #         return False
+        while True:
+            try:
+                # Process new frames
+                # self.frame = self.camera_ai.update()
+
+                # Display opencv window of the captured frame
+                cv2.namedWindow("CAM Capture", cv2.WINDOW_NORMAL)
+                cv2.resizeWindow("CAM Capture", 640, 480)
+                cv2.imshow("CAM Capture", self.frame)
+
+                key = cv2.waitKey(1) & 0xFF
+
+                # if the `q` key is pressed, do cleanup and break from the loop
+                if key == ord("q"):
+                    log = "exiting..."
+                    logging.info(log)
+                    print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
+                    self.end()
+
+                    return False
+
+            except KeyboardInterrupt:
+                log = "exiting..."
+                logging.info(log)
+                print("[", colored("INFO", 'green', attrs=['bold']), "   ] " + log)
+                self.end()
+
+                return False
 
     def end(self):
         # Stop the stream list
