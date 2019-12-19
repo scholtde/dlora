@@ -99,7 +99,8 @@ class Dlora:
         self.camera_ai.probability = self.probability
 
         # Setup BLE services
-        self.ble_scanner, self.ble_sock = self.ble_services()
+        self.ble_scanner = None
+        self.ble_sock = None
         self.ble_scanner.DEBUG = True
         self.ble_stop = False
         # self.camera_ai.ble_scanner = self.ble_scanner
@@ -113,9 +114,6 @@ class Dlora:
                             "object_classification": "person",
                             "Details": "Dewald Scholtz"}]
         self.camera_ai.ble_known_things = self.known_things
-
-        if self.ble_scanner is not None:
-            self.start_ble_loop()
 
     def ble_services(self):
         # BLE scanner
@@ -185,6 +183,10 @@ class Dlora:
         self.ble_stop = True
 
     def run(self):
+        self.ble_scanner, self.ble_sock = self.ble_services()
+        if self.ble_scanner is not None:
+            self.start_ble_loop()
+
         # Display the stream
         log = "starting output video screen"
         logging.info(log)
