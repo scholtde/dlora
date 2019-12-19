@@ -87,10 +87,10 @@ class Dlora:
         self.frame = np.zeros(shape=[360, 640, 3], dtype=np.uint8)
 
         # Start capturing frames from the camera stream
-        # self.capture = VideoStream(self.stream).start()
+        self.capture = VideoStream(self.stream).start()
 
         # Create a AI streamer to pass frames to the object detector
-        # self.camera_ai = ai.aiStreamer()
+        self.camera_ai = ai.aiStreamer()
 
         # Initialize ai object members
         self.camera_ai.capture = self.capture
