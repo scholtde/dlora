@@ -240,6 +240,11 @@ class BleScan:
                                 self.discovered_devices_buffer.append(self.discovered_devices)
 
             except Exception as e:
+                if self.DEBUG:
+                    print("-------------")
+                    print("\tTS:", time.time())
+                    print("\tERR: ", str(e))
+
                 # Start removing devices from the buffer
                 if self.discovered_devices_buffer:
                     self.discovered_devices_buffer.pop(0)
