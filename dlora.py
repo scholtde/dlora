@@ -193,7 +193,7 @@ class Dlora:
         while True:
             try:
                 # Process new frames
-                self.frame = self.camera_ai.update()
+                #self.frame = self.camera_ai.update()
 
                 # Display opencv window of the captured frame
                 cv2.namedWindow("CAM Capture", cv2.WINDOW_NORMAL)
