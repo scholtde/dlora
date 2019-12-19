@@ -176,7 +176,7 @@ class BleScan:
         bluez.hci_filter_all_events(flt)
         bluez.hci_filter_set_ptype(flt, bluez.HCI_EVENT_PKT)
         # Set a timeout in order for pasing time out if nothing on socket is received
-        sock.settimeout(0.5)
+        sock.settimeout(1)
         # Set socket options
         sock.setsockopt(bluez.SOL_HCI, bluez.HCI_FILTER, flt)
 
@@ -244,14 +244,14 @@ class BleScan:
                 if self.discovered_devices_buffer:
                     self.discovered_devices_buffer.pop(0)
 
-        sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter)
+        sock.setsockopt(bluez.SOL_HCI, bluez.HCI_FILTER, old_filter)
 
         # Parsing is done
         self.parse_done = True
 
         return self.parse_done
 
-# Following code herafter demonstrates BLE Scanner
+# Following code hereafter demonstrates BLE Scanner
 def ble_services():
     # BLE scanner setup service
     device_err = False
