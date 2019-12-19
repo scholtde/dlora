@@ -185,7 +185,7 @@ class Dlora:
         self.ble_scanner, self.ble_sock = self.ble_services()
         if self.ble_scanner is not None:
             self.ble_scanner.DEBUG = True
-            self.start_ble_loop()
+            self.ble_loop()
 
         # Display the stream
         log = "starting output video screen"
